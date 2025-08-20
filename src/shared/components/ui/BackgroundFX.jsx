@@ -27,15 +27,15 @@
         sx={{
           position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
           background: `
-            radial-gradient(800px 400px at 10% 10%, rgba(124,58,237,0.16) 0%, transparent 60%),
-            radial-gradient(700px 350px at 90% 20%, rgba(16,185,129,0.14) 0%, transparent 60%),
-            radial-gradient(600px 300px at 30% 85%, rgba(124,58,237,0.10) 0%, transparent 70%),
+            radial-gradient(55vw 27.5vw at 10% 10%, rgba(124,58,237,0.16) 0%, transparent 60%),
+            radial-gradient(48vw 24vw at 90% 20%, rgba(16,185,129,0.14) 0%, transparent 60%),
+            radial-gradient(42vw 21vw at 30% 85%, rgba(124,58,237,0.10) 0%, transparent 70%),
             linear-gradient(180deg, rgba(245,247,251,1) 0%, transparent 100%)
           `,
           '&:after': {
-            content: '""', position: 'absolute', inset: -100, background:
+            content: '""', position: 'absolute', inset: '-7vw', background:
               'conic-gradient(from 0deg, rgba(255,255,255,0.06), rgba(255,255,255,0.0), rgba(255,255,255,0.06))',
-            filter: 'blur(40px)', opacity: 0.5,
+            filter: 'blur(2.8vw)', opacity: 0.5,
             animation: 'spinSlow 26s linear infinite',
           },
           '@keyframes spinSlow': {

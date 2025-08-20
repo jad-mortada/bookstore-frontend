@@ -610,9 +610,9 @@ const CustomerOrderFlow = () => {
 
   return (
     <BackgroundFX>
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 1200, mx: 'auto' }}>
+    <Box sx={{ pl: { xs: '1.2vw', md: '0.8vw' }, pr: { xs: '2vw', md: '1.4vw' }, pt: { xs: '2vw', md: '1.5vw' }, pb: { xs: '2vw', md: '1.5vw' }, maxWidth: '100%', mx: 0 }}>
       {noSchools && (
-        <GlassCard elevation={6} sx={{ borderRadius: 3, mb: 3 }}>
+        <GlassCard elevation={6} sx={{ borderRadius: '1vw', mb: '2vw' }}>
           <CardHeader title={<Typography variant="h6">Ordering Unavailable</Typography>} />
           <CardContent>
             <Typography variant="body1">
@@ -624,7 +624,7 @@ const CustomerOrderFlow = () => {
       <GlassCard elevation={6} sx={{ borderRadius: 3, mb: 3 }}>
         <CardHeader title={<Typography variant="h5">Place Order</Typography>} />
         <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: '1.5vw', mb: '1.5vw', flexWrap: 'wrap' }}>
             <Autocomplete
               open={schoolOpen}
               onOpen={() => setSchoolOpen(true)}
@@ -645,7 +645,7 @@ const CustomerOrderFlow = () => {
                   {...params}
                   label="School"
                   placeholder="Search school..."
-                  sx={{ minWidth: 240 }}
+                  sx={{ minWidth: { xs: '70vw', sm: '45vw', md: '28vw' } }}
                   slotProps={{
                     input: {
                       ...(params?.InputProps || {}),
@@ -667,7 +667,7 @@ const CustomerOrderFlow = () => {
               value={toArray(classes).find(c => String(c.id) === String(selectedClass)) || null}
               onChange={(_, val) => setSelectedClass(val?.id ? String(val.id) : '')}
               renderInput={(params) => (
-                <TextField {...params} label="Class" placeholder={!selectedSchool ? 'Select a school first' : 'Search class...'} sx={{ minWidth: 200 }} disabled={!selectedSchool} />
+                <TextField {...params} label="Class" placeholder={!selectedSchool ? 'Select a school first' : 'Search class...'} sx={{ minWidth: { xs: '60vw', sm: '40vw', md: '24vw' } }} disabled={!selectedSchool} />
               )}
             />
             <TextField
@@ -676,7 +676,7 @@ const CustomerOrderFlow = () => {
               value={year}
               disabled={!selectedClass}
               onChange={e => setYear(e.target.value)}
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: { xs: '40vw', sm: '28vw', md: '16vw' } }}
             >
               {Array.from({ length: 11 }, (_, i) => {
                 const y = currentYear - i;
@@ -700,30 +700,30 @@ const CustomerOrderFlow = () => {
         <GlassCard elevation={6} sx={{ borderRadius: 3, mb: 3 }}>
           <CardHeader title={<Typography variant="h6">Official Book List</Typography>} />
           <CardContent>
-            <Box sx={{ height: 480, width: '100%' }}>
+            <Box sx={{ width: '100%', maxHeight: { xs: '55vh', md: '65vh' }, overflow: 'auto' }}>
               <DataGrid
                 rows={currentItems}
                 columns={[
                   {
                     field: 'cover',
                     headerName: '',
-                    width: 56,
+                    flex: 0.4,
                     sortable: false,
                     filterable: false,
                     disableColumnMenu: true,
                     renderCell: ({ row }) => {
                       const img = row.imageUrl;
                       return img ? (
-                        <img src={resolveImageUrl(img)} alt={row.bookTitle || row.title || 'cover'} style={{ width: 32, height: 44, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} onClick={() => { setPreviewSrc(resolveImageUrl(img)); setPreviewOpen(true); }} />
+                        <img src={resolveImageUrl(img)} alt={row.bookTitle || row.title || 'cover'} style={{ width: '3vw', height: '4.2vw', objectFit: 'cover', borderRadius: '0.3vw', cursor: 'zoom-in' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} onClick={() => { setPreviewSrc(resolveImageUrl(img)); setPreviewOpen(true); }} />
                       ) : (
-                        <Box sx={{ width: 32, height: 44, borderRadius: 1, bgcolor: 'action.hover' }} />
+                        <Box sx={{ width: '3vw', height: '4.2vw', borderRadius: '0.3vw', bgcolor: 'action.hover' }} />
                       );
                     },
                   },
                   {
                     field: '__select__',
                     headerName: '',
-                    width: 50,
+                    flex: 0.32,
                     sortable: false,
                     filterable: false,
                     disableColumnMenu: true,
@@ -763,7 +763,7 @@ const CustomerOrderFlow = () => {
                         type="number"
                         value={row.quantity}
                         onChange={e => handleOrderChange(currentItems.findIndex(i => i.bookId === row.bookId), 'quantity', Math.max(1, Number(e.target.value)))}
-                        inputProps={{ min: 1, style: { width: 60 } }}
+                        inputProps={{ min: 1, style: { width: '8vw', minWidth: '70px' } }}
                         size="small"
                       />
                     ),
@@ -824,7 +824,7 @@ const CustomerOrderFlow = () => {
         </GlassCard>
       )}
       {currentItems.length > 0 && (
-        <GlassCard elevation={4} sx={{ mb: 2 }}>
+        <GlassCard elevation={4} sx={{ mb: '1.4vw' }}>
           <CardContent sx={{ pt: 1 }}>
             <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
               <Stack direction="row" spacing={1}>
@@ -843,7 +843,7 @@ const CustomerOrderFlow = () => {
         </GlassCard>
       )}
       {accumulatedItems.length > 0 && (
-        <GlassCard elevation={6} sx={{ borderRadius: 3, mb: 3 }}>
+        <GlassCard elevation={6} sx={{ borderRadius: '1vw', mb: '2vw' }}>
           <CardHeader title={<Typography variant="h6">Items in Your Order ({accumulatedItems.length})</Typography>} />
           <CardContent>
             <Box sx={{ overflowX: 'auto' }}>
@@ -886,18 +886,18 @@ const CustomerOrderFlow = () => {
                       whileHover={{}}
                       transition={{ duration: 0.15, ease: 'easeOut' }}
                     >
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' } })}><b>{item.bookTitle}</b></Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' } })}>{item.bookAuthor}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' } })}><b>{item.bookTitle}</b></Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' } })}>{item.bookAuthor}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
                         <TextField
                           type="number"
                           value={item.quantity}
                           onChange={e => handleAccumulatedChange(idx, 'quantity', Math.max(1, Number(e.target.value)))}
-                          inputProps={{ min: 1, style: { width: 60 } }}
+                          inputProps={{ min: 1, style: { width: '8vw', minWidth: '70px' } }}
                           size="small"
                         />
                       </Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
                         <TextField
                           select
                           value={item.conditionType}
@@ -908,12 +908,12 @@ const CustomerOrderFlow = () => {
                           <MenuItem value="USED">Used</MenuItem>
                         </TextField>
                       </Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{currency(getUnitPrice(item))}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{currency(getSubtotal(item))}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.schoolName || item.schoolId}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.className || item.classId}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.year}</Box>
-                      <Box component="td" sx={(theme) => ({ p: 1, borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{currency(getUnitPrice(item))}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{currency(getSubtotal(item))}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.schoolName || item.schoolId}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.className || item.classId}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>{item.year}</Box>
+                      <Box component="td" sx={(theme) => ({ p: '0.8vw', borderColor: theme.palette.divider, borderBottom: '1px solid', '&:last-child': { borderRight: '1px solid' }, textAlign: 'center' })}>
                         <Tooltip title="Remove item">
                           <IconButton color="error" size="small" aria-label="Remove item" onClick={() => handleRemoveAccumulated(idx)}>
                             <DeleteOutlineRounded />
@@ -925,7 +925,7 @@ const CustomerOrderFlow = () => {
                 </Box>
               </Box>
             </Box>
-            <Box sx={(theme) => ({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2, gap: 2, flexWrap: 'wrap', backgroundColor: theme.palette.background.paper, borderRadius: 1, boxShadow: theme.shadows[1], p: 1.5 })}>
+            <Box sx={(theme) => ({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: '1.2vw', gap: '1.2vw', flexWrap: 'wrap', backgroundColor: theme.palette.background.paper, borderRadius: '0.6vw', boxShadow: theme.shadows[1], p: '1.2vw' })}>
               <Tooltip title="Remove all items from your order">
                 <span>
                   <Button startIcon={<RemoveShoppingCartRounded />} color="inherit" aria-label="Clear cart" onClick={handleClearCart}>
@@ -948,8 +948,8 @@ const CustomerOrderFlow = () => {
         </GlassCard>
       )}
       {accumulatedItems.length === 0 && (
-        <GlassCard elevation={4} sx={{ borderRadius: 3, mb: 3 }}>
-          <CardContent sx={{ textAlign: 'center', py: 6 }}>
+        <GlassCard elevation={4} sx={{ borderRadius: '1vw', mb: '2vw' }}>
+          <CardContent sx={{ textAlign: 'center', py: '6vh' }}>
             <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>Your cart is empty</Typography>
             <Typography variant="body2" color="text.secondary">
               Browse the official list, select books, and click "Add Selected" to build your order.
