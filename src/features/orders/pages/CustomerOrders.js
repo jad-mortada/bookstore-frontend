@@ -4,8 +4,11 @@ import { DataGrid } from '@mui/x-data-grid';
 import { motion } from 'framer-motion';
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import customerBookOrderService from '../../../api/orders.api';
+import bookService from '../../../api/books.api';
 import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
 import GlassCard from '../../../shared/components/ui/GlassCard';
+import { resolveImageUrl } from '../../../shared/utils/image';
+import ImagePreviewDialog from '../../../shared/components/ImagePreviewDialog';
 
 const CustomerOrders = () => {
   const fmtDate = React.useCallback((iso) => {
@@ -24,7 +27,9 @@ const CustomerOrders = () => {
   const [deleteOrderId, setDeleteOrderId] = useState(null);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
- 
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState('');
+
   const fetchOrders = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -56,6 +61,31 @@ const CustomerOrders = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  // Enrich missing cover images in the detail dialog by joining with books catalog
+  useEffect(() => {
+    const enrich = async () => {
+      try {
+        if (!detailOrder || !Array.isArray(detailOrder.orderItems) || detailOrder.orderItems.length === 0) return;
+        const needs = detailOrder.orderItems.some(it => !it?.imageUrl && !it?.book?.imageUrl);
+        if (!needs) return;
+        const res = await bookService.getBooks();
+        const catalog = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.content) ? res.data.content : []);
+        const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+        const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+        const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+        const items = (detailOrder.orderItems || []).map(it => {
+          if (it?.imageUrl) return it;
+          const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+          const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+          const img = pickImg(match);
+          return img ? { ...it, imageUrl: img } : it;
+        });
+        setDetailOrder(prev => prev ? { ...prev, orderItems: items } : prev);
+      } catch (_) {}
+    };
+    enrich();
+  }, [detailOrder]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
@@ -231,6 +261,7 @@ const CustomerOrders = () => {
                     >
                       <Box component="thead">
                         <Box component="tr">
+                          <Box component="th" sx={{ width: 48 }}></Box>
                           <Box component="th" sx={{ textAlign: 'left' }}>Title</Box>
                           <Box component="th" sx={{ textAlign: 'left' }}>Author</Box>
                           <Box component="th" sx={{ textAlign: 'center' }}>Condition</Box>
@@ -269,16 +300,29 @@ const CustomerOrders = () => {
                           const quantity = Number(item.quantity || 0);
                           const subtotal = unitPrice * quantity;
                           return (
-                            <motion.tr
-                              key={item.id || idx}
-                              transition={{ duration: 0.15, ease: 'easeOut' }}
-                            >
+                            <motion.tr key={item.id || `${item.bookId || item.id || 'row'}-${idx}`} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+                              <Box component="td" sx={{ p: 1.25 }}>
+                                {(() => {
+                                  const img = item.imageUrl;
+                                  return img ? (
+                                    <img
+                                      src={resolveImageUrl(img)}
+                                      alt={item.bookTitle || item.title || 'cover'}
+                                      style={{ width: 28, height: 40, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }}
+                                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                      onClick={() => { setPreviewSrc(resolveImageUrl(img)); setPreviewOpen(true); }}
+                                    />
+                                  ) : (
+                                    <Box sx={{ width: 28, height: 40, borderRadius: 1, bgcolor: 'action.hover' }} />
+                                  );
+                                })()}
+                              </Box>
                               <Box component="td" sx={{ p: 1.25 }}><b>{item.bookTitle || item.title || 'N/A'}</b></Box>
                               <Box component="td" sx={{ p: 1.25 }}>{item.bookAuthor || item.author || 'N/A'}</Box>
                               <Box component="td" sx={{ p: 1.25, textAlign: 'center' }}>
-                                <Chip 
-                                  label={item.conditionType || 'NEW'} 
-                                  size="small" 
+                                <Chip
+                                  label={item.conditionType || item.condition || item.bookCondition || 'NEW'}
+                                  size="small"
                                   color={isUsed ? 'default' : 'primary'}
                                   variant="outlined"
                                 />
@@ -344,24 +388,24 @@ const CustomerOrders = () => {
             <Button onClick={() => setDetailOrder(null)}>Close</Button>
           </DialogActions>
         </Dialog>
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteOrderId} onClose={() => setDeleteOrderId(null)} fullWidth maxWidth="sm">
-        <DialogTitle>Delete Order?</DialogTitle>
-        <DialogContent>
-          <Typography>Are you sure you want to delete this order?</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteOrderId(null)}>Cancel</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
-    </Box>
-  </BackgroundFX>
-);
-
+        <ImagePreviewDialog open={previewOpen} src={previewSrc} onClose={() => setPreviewOpen(false)} />
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deleteOrderId} onClose={() => setDeleteOrderId(null)} fullWidth maxWidth="sm">
+          <DialogTitle>Delete Order?</DialogTitle>
+          <DialogContent>
+            <Typography>Are you sure you want to delete this order?</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDeleteOrderId(null)}>Cancel</Button>
+            <Button onClick={handleDelete} color="error" variant="contained">Delete</Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        </Snackbar>
+      </Box>
+    </BackgroundFX>
+  );
 };
 
 export default CustomerOrders;

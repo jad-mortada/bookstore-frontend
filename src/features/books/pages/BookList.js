@@ -10,6 +10,7 @@ import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import SectionHeader from '../../../shared/components/ui/SectionHeader';
+import { resolveImageUrl } from '../../../shared/utils/image';
 
 const initialForm = { title: '', author: '', isbn: '', publisher: '', price: '' };
 
@@ -25,6 +26,10 @@ const BookList = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const { setLoading } = useLoading();
   const [errors, setErrors] = useState({});
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState('');
 
   const fetchBooks = React.useCallback(async () => {
     setLoading(true);
@@ -57,6 +62,8 @@ const BookList = () => {
     setOpen(true);
     setErrors({});
     setErrorMessage('');
+    setImageFile(null);
+    setImagePreview(book?.imageUrl || '');
   };
 
   const handleClose = () => {
@@ -64,6 +71,8 @@ const BookList = () => {
     setForm(initialForm);
     setEditId(null);
     setErrors({});
+    setImageFile(null);
+    setImagePreview('');
   };
 
   const handleChange = (e) => {
@@ -83,12 +92,19 @@ const BookList = () => {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
     try {
+      let savedId = editId;
       if (editId) {
-        await bookService.updateBook(editId, form);
+        const res = await bookService.updateBook(editId, form);
+        savedId = res?.data?.id ?? editId;
         setErrorMessage('');
       } else {
-        await bookService.createBook(form);
+        const res = await bookService.createBook(form);
+        savedId = res?.data?.id;
         setErrorMessage('');
+      }
+      // If an image is selected, upload it
+      if (imageFile && savedId) {
+        await bookService.uploadBookImage(savedId, imageFile);
       }
       handleClose();
       fetchBooks();
@@ -170,6 +186,33 @@ const BookList = () => {
                 <DataGrid
                   rows={Array.isArray(books) ? books : []}
                   columns={[
+                    {
+                      field: 'imageUrl',
+                      headerName: 'Cover',
+                      width: 60,
+                      sortable: false,
+                      renderCell: ({ row }) => (
+                        row?.imageUrl ? (
+                          <img
+                            src={resolveImageUrl(row.imageUrl)}
+                            alt={row.title || 'cover'}
+                            style={{ width: 32, height: 44, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }}
+                            onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }}
+                            onClick={() => { setPreviewSrc(resolveImageUrl(row.imageUrl)); setPreviewOpen(true); }}
+                          />
+                        ) : (
+                          <Box sx={{ width: 32, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {isAdmin && (
+                              <Tooltip title="Add cover">
+                                <IconButton size="small" onClick={() => handleOpen(row)} aria-label={`Add cover for ${row.title || 'book'}`}>
+                                  <AddRounded fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                          </Box>
+                        )
+                      ),
+                    },
                     { field: 'title', headerName: 'Title', flex: 1 },
                     { field: 'author', headerName: 'Author', flex: 1 },
                     { field: 'isbn', headerName: 'ISBN', flex: 1 },
@@ -228,6 +271,33 @@ const BookList = () => {
             helperText={errors.title}
             required
           />
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Cover image</Typography>
+            {imagePreview ? (
+              <img src={imagePreview} alt="preview" style={{ width: 96, height: 128, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)' }} />
+            ) : (
+              <Box sx={{ width: 96, height: 128, borderRadius: 1, bgcolor: 'action.hover', border: '1px dashed', borderColor: 'divider' }} />
+            )}
+            <Box sx={{ mt: 1 }}>
+              <Button variant="outlined" component="label" size="small">
+                {imageFile ? 'Change image' : 'Upload image'}
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setImageFile(file);
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setImagePreview(ev.target?.result || '');
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </Button>
+            </Box>
+          </Box>
           <TextField
             margin="normal"
             fullWidth
@@ -275,6 +345,20 @@ const BookList = () => {
           <GradientButton onClick={handleSubmit} size="small">
             {editId ? 'Update' : 'Create'}
           </GradientButton>
+        </DialogActions>
+      </Dialog>
+      {/* Image Preview Dialog */}
+      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md">
+        <DialogTitle>Cover Preview</DialogTitle>
+        <DialogContent dividers>
+          {previewSrc && (
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <img src={previewSrc} alt="cover" style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain' }} />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPreviewOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -10,6 +10,7 @@ import schoolService from '../../../api/schools.api';
 import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import SectionHeader from '../../../shared/components/ui/SectionHeader';
+import { resolveImageUrl } from '../../../shared/utils/image';
 
 const ListBooksManagement = () => {
   const { setLoading } = useLoading();
@@ -140,35 +141,51 @@ const ListBooksManagement = () => {
                     ((b.title ? b.title.toLowerCase() : '').includes(search.toLowerCase()) ||
                      (b.author ? b.author.toLowerCase() : '').includes(search.toLowerCase()))
                   )}
-                columns={[
-                  { field: 'title', headerName: 'Book Title', flex: 1.5 },
-                  { field: 'author', headerName: 'Author', flex: 1 },
-                  {
-                    field: 'linked',
-                    headerName: 'Linked',
-                    flex: 0.7,
-                    sortable: false,
-                    renderCell: ({ row }) => (
-                      <Tooltip title={linkedBooks.some(b => b.bookId === row.id) ? 'Unlink book' : 'Link book'}>
-                        <Checkbox
-                          checked={linkedBooks.some(b => b.bookId === row.id)}
-                          onChange={() => handleToggle(row.id)}
-                        />
-                      </Tooltip>
-                    ),
-                    align: 'center',
-                    headerAlign: 'center',
-                  },
-                ]}
-                pageSize={10}
-                rowsPerPageOptions={[10, 20, 30]}
-                disableSelectionOnClick
-                getRowId={row => row.id}
-                sx={{ borderRadius: 2, backgroundColor: 'background.paper', boxShadow: 1, mt: 2 }}
-                autoHeight={false}
-                localeText={{ noRowsLabel: 'No books found.' }}
-              />
-            </Box>
+                  columns={[
+                    {
+                      field: 'cover',
+                      headerName: '',
+                      width: 56,
+                      sortable: false,
+                      filterable: false,
+                      disableColumnMenu: true,
+                      renderCell: ({ row }) => {
+                        const img = row.imageUrl;
+                        return img ? (
+                          <img src={resolveImageUrl(img)} alt={row.title || 'cover'} style={{ width: 32, height: 44, objectFit: 'cover', borderRadius: 4 }} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                        ) : (
+                          <Box sx={{ width: 32, height: 44, borderRadius: 1, bgcolor: 'action.hover' }} />
+                        );
+                      },
+                    },
+                    { field: 'title', headerName: 'Book Title', flex: 1.5 },
+                    { field: 'author', headerName: 'Author', flex: 1 },
+                    {
+                      field: 'linked',
+                      headerName: 'Linked',
+                      flex: 0.7,
+                      sortable: false,
+                      renderCell: ({ row }) => (
+                        <Tooltip title={linkedBooks.some(b => b.bookId === row.id) ? 'Unlink book' : 'Link book'}>
+                          <Checkbox
+                            checked={linkedBooks.some(b => b.bookId === row.id)}
+                            onChange={() => handleToggle(row.id)}
+                          />
+                        </Tooltip>
+                      ),
+                      align: 'center',
+                      headerAlign: 'center',
+                    },
+                  ]}
+                  pageSize={10}
+                  rowsPerPageOptions={[10, 20, 30]}
+                  disableSelectionOnClick
+                  getRowId={row => row.id}
+                  sx={{ borderRadius: 2, backgroundColor: 'background.paper', boxShadow: 1, mt: 2 }}
+                  autoHeight={false}
+                  localeText={{ noRowsLabel: 'No books found.' }}
+                />
+              </Box>
             </>
           )}
         </GlassCard>

@@ -1,7 +1,25 @@
-import React from 'react';
-import { Box } from '@mui/material';
-
-const BackgroundFX = ({ children }) => {
+/**
+  * BackgroundFX.jsx
+  * Lightweight decorative background wrapper that renders subtle radial gradients
+  * and a slow spinning conic overlay behind its children. Uses only MUI `Box`
+  * and CSS animations (no runtime logic). Intended for page-level sections.
+  *
+  * This file adds documentation comments only and does not change behavior.
+  */
+ import React from 'react';
+ import { Box } from '@mui/material';
+ 
+ /**
+  * BackgroundFX
+  *
+  * Wraps content with a full-viewport decorative background. All content is
+  * rendered above the effects layer using `zIndex: 1`.
+  *
+  * @param {Object} props
+  * @param {React.ReactNode} props.children - Content to render above the background effects.
+  * @returns {JSX.Element}
+  */
+ const BackgroundFX = ({ children }) => {
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', width: '100%', overflow: 'hidden' }}>
       <Box

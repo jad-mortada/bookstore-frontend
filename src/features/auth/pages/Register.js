@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, TextField, Box, Typography, CardHeader, CardContent, Alert, Grid, Chip, Stack } from '@mui/material';
+import { Avatar, TextField, Box, Typography, CardHeader, CardContent, Alert, Grid, Chip, Stack, IconButton, InputAdornment, LinearProgress } from '@mui/material';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
@@ -7,22 +7,43 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import axiosInstance from '../../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { useLoading } from '../../../shared/contexts/LoadingContext';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { evaluatePassword } from '../../../shared/utils/passwordStrength';
  
 
 const Register = () => {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phoneNumber: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
   const { setLoading } = useLoading();
  
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    if (e.target.name === 'password') {
+      setPasswordError('');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setPasswordError('');
+    // Client-side password policy
+    if (!form.password || form.password.length < 8) {
+      setPasswordError('Use at least 8 characters');
+      return;
+    }
+    const s = evaluatePassword(form.password);
+    if ((s?.score ?? 0) < 3) {
+      setPasswordError('Password is too weak. Aim for Good or Strong.');
+      return;
+    }
     setLoading(true);
     try {
       const payload = {
@@ -161,10 +182,19 @@ const Register = () => {
                   required
                   label="Password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   variant="filled"
                   value={form.password}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword(v => !v)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                   sx={{
                     '& .MuiFilledInput-root': (theme) => ({ backgroundColor: 'rgba(15, 23, 42, 0.035)', borderRadius: 2, backdropFilter: 'blur(6px)' }),
                     '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { borderBottom: 'none' },
@@ -172,6 +202,14 @@ const Register = () => {
                     '& .MuiInputBase-input': (theme) => ({ color: theme.palette.text.primary }),
                   }}
                 />
+                {!!form.password && (() => { const s = evaluatePassword(form.password); return (
+                  <Box sx={{ gridColumn: '1 / -1' }}>
+                    <Stack spacing={0.5} sx={{ mt: -1 }}>
+                      <LinearProgress variant="determinate" value={s.percent} color={s.color} sx={{ height: 6, borderRadius: 1 }} />
+                      <Typography variant="caption" color="text.secondary">Strength: {s.label}</Typography>
+                    </Stack>
+                  </Box>
+                ); })()}
                 <Box sx={{ gridColumn: '1 / -1' }}>
                   {error && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
                   {success && <Alert severity="success" sx={{ mt: 1 }}>{success}</Alert>}

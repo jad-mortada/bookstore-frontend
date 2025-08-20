@@ -1,19 +1,23 @@
 import React, { useState, useContext } from 'react';
-import { Avatar, TextField, Box, Typography, CardHeader, CardContent, Alert, FormControlLabel, Checkbox, Grid, Chip, Stack } from '@mui/material';
+import { Avatar, TextField, Box, Typography, CardHeader, CardContent, Alert, FormControlLabel, Checkbox, Grid, Chip, Stack, IconButton, InputAdornment } from '@mui/material';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../shared/contexts/AuthContext';
 import { useLoading } from '../../../shared/contexts/LoadingContext';
 import axiosInstance from '../../../api/axiosInstance';
+// password strength meter intentionally not used on login
  
 
 const Login = () => {
   const { login } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -122,13 +126,26 @@ const Login = () => {
                 />
                 <TextField
                   label="Password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   variant="filled"
                   required
                   fullWidth
                   autoComplete="current-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword((v) => !v)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{
                     borderRadius: 2,
                     '& .MuiFilledInput-root': {
@@ -141,6 +158,7 @@ const Login = () => {
                     '& .MuiInputBase-input': (theme) => ({ color: theme.palette.text.primary }),
                   }}
                 />
+                {/* Password strength meter removed on login for simplicity */}
                 <FormControlLabel
                   control={
                     <Checkbox

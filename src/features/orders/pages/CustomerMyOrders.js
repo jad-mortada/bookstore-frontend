@@ -8,10 +8,13 @@ import SectionHeader from '../../../shared/components/ui/SectionHeader';
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import AddShoppingCartRounded from '@mui/icons-material/AddShoppingCartRounded';
 import profileService from '../../../api/profile.api'; // Adjust the import path as needed
+import bookService from '../../../api/books.api';
 import customerBookOrderService from '../../../api/orders.api';
 import tempOrderService from '../../../api/tempOrders.api';
+import { resolveImageUrl } from '../../../shared/utils/image';
+import ImagePreviewDialog from '../../../shared/components/ImagePreviewDialog';
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, onPreview }) => {
   const [open, setOpen] = useState(false);
   
   // Calculate total price
@@ -114,6 +117,7 @@ const OrderCard = ({ order }) => {
               >
                 <Box component="thead">
                   <Box component="tr">
+                    <Box component="th" sx={{ textAlign: 'left', width: 48 }} />
                     <Box component="th" sx={{ textAlign: 'left' }}>Title</Box>
                     <Box component="th" sx={{ textAlign: 'left' }}>Author</Box>
                     <Box component="th" sx={{ textAlign: 'center' }}>Condition</Box>
@@ -143,6 +147,28 @@ const OrderCard = ({ order }) => {
                         key={item.id || `${item.orderId}-${item.bookId}`}
                         transition={{ duration: 0.15, ease: 'easeOut' }}
                       >
+                        <Box component="td" sx={{ p: 1.5 }}>
+                          {(() => {
+                            const img = (
+                              item.imageUrl ||
+                              item.bookImageUrl ||
+                              item.coverUrl ||
+                              item.imagePath ||
+                              (item.book && (item.book.imageUrl || item.book.coverUrl))
+                            );
+                            return img ? (
+                              <img
+                                src={resolveImageUrl(img)}
+                                alt={item.bookTitle || item.title || 'cover'}
+                                style={{ width: 28, height: 40, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }}
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                onClick={() => onPreview && onPreview(resolveImageUrl(img))}
+                              />
+                            ) : (
+                              <Box sx={{ width: 28, height: 40, borderRadius: 1, bgcolor: 'action.hover' }} />
+                            );
+                          })()}
+                        </Box>
                         <Box component="td" sx={{ p: 1.5 }}><b>{item.bookTitle || item.title || '-'}</b></Box>
                         <Box component="td" sx={{ p: 1.5, color: 'text.secondary' }}>{item.bookAuthor || item.author || '-'}</Box>
                         <Box component="td" sx={{ p: 1.5, textAlign: 'center' }}>
@@ -199,6 +225,8 @@ const CustomerMyOrders = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // date_desc | date_asc | total_desc | total_asc
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -208,11 +236,32 @@ const CustomerMyOrders = () => {
         const res = await customerBookOrderService.getOrdersByCustomer(me.id);
         if (!mounted) return;
         // Normalize approved orders so OrderCard can render consistently
-        const approved = (res.data || []).map(o => ({
+        let approved = (res.data || []).map(o => ({
           ...o,
           items: Array.isArray(o.orderItems) ? o.orderItems : (o.items || []),
           status: o.status || 'APPROVED',
         }));
+        // Enrich approved orders items with imageUrl if missing
+        try {
+          const needs = approved.some(o => (o.items || []).some(it => !it?.imageUrl && !it?.book?.imageUrl && !it?.bookImageUrl && !it?.coverUrl && !it?.imagePath));
+          if (needs) {
+            const resBooks = await bookService.getBooks();
+            const catalog = Array.isArray(resBooks?.data) ? resBooks.data : (Array.isArray(resBooks?.data?.content) ? resBooks.data.content : []);
+            const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+            const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+            const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+            approved = approved.map(o => ({
+              ...o,
+              items: (o.items || []).map(it => {
+                if (it?.imageUrl || (it?.book && it.book.imageUrl) || it?.bookImageUrl || it?.coverUrl || it?.imagePath) return it;
+                const keyTitle = String((it?.bookTitle || it?.title || it?.book?.title || '')).toLowerCase().trim();
+                const match = byId.get(String(it?.bookId ?? it?.book?.id ?? it?.id)) || byTitle.get(keyTitle);
+                const img = pickImg(match);
+                return img ? { ...it, imageUrl: img } : it;
+              })
+            }));
+          }
+        } catch (_) {}
         setOrders(approved);
         // Load temp drafts (DRAFT/SUBMITTED/APPROVED)
         const dres = await tempOrderService.listMyDrafts();
@@ -228,7 +277,32 @@ const CustomerMyOrders = () => {
           });
           return next;
         });
-        setDrafts(list);
+        // Enrich drafts images immediately to avoid flicker on expand
+        try {
+          const needs = (list || []).some(d => (d.items || []).some(it => !it?.imageUrl && !it?.book?.imageUrl));
+          if (needs) {
+            const resBooks = await bookService.getBooks();
+            const catalog = Array.isArray(resBooks?.data) ? resBooks.data : (Array.isArray(resBooks?.data?.content) ? resBooks.data.content : []);
+            const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+            const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+            const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+            const enriched = (list || []).map(d => ({
+              ...d,
+              items: (d.items || []).map(it => {
+                if (it?.imageUrl) return it;
+                const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+                const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+                const img = pickImg(match);
+                return img ? { ...it, imageUrl: img } : it;
+              })
+            }));
+            setDrafts(enriched);
+          } else {
+            setDrafts(list);
+          }
+        } catch {
+          setDrafts(list);
+        }
       } catch (e) {
         if (!mounted) return;
         const msg = typeof e?.response?.data === 'string' ? e.response.data : (e?.message || 'Failed to load your orders');
@@ -237,6 +311,8 @@ const CustomerMyOrders = () => {
     })();
     return () => { mounted = false; };
   }, []);
+
+  // Removed global enrichment to prevent image flicker on drafts
 
   // Debounce search
   useEffect(() => {
@@ -315,6 +391,27 @@ const CustomerMyOrders = () => {
         ...prev,
         [draftId]: ordered.items.map(it => it.id),
       }));
+      // Enrich ordered draft items for images if needed
+      try {
+        const needs = (ordered.items || []).some(it => !it?.imageUrl && !it?.book?.imageUrl);
+        if (needs) {
+          const resBooks = await bookService.getBooks();
+          const catalog = Array.isArray(resBooks?.data) ? resBooks.data : (Array.isArray(resBooks?.data?.content) ? resBooks.data.content : []);
+          const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+          const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+          const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+          ordered = {
+            ...ordered,
+            items: (ordered.items || []).map(it => {
+              if (it?.imageUrl) return it;
+              const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+              const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+              const img = pickImg(match);
+              return img ? { ...it, imageUrl: img } : it;
+            })
+          };
+        }
+      } catch {}
       setDrafts(prev => prev.map(dr => (dr.id === draftId ? ordered : dr)));
       setErrorMessage('');
     } catch (e) {
@@ -343,6 +440,27 @@ const CustomerMyOrders = () => {
         ...prev,
         [draftId]: ordered.items.map(it => it.id),
       }));
+      // Enrich ordered draft items for images if needed
+      try {
+        const needs = (ordered.items || []).some(it => !it?.imageUrl && !it?.book?.imageUrl);
+        if (needs) {
+          const resBooks = await bookService.getBooks();
+          const catalog = Array.isArray(resBooks?.data) ? resBooks.data : (Array.isArray(resBooks?.data?.content) ? resBooks.data.content : []);
+          const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+          const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+          const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+          ordered = {
+            ...ordered,
+            items: (ordered.items || []).map(it => {
+              if (it?.imageUrl) return it;
+              const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+              const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+              const img = pickImg(match);
+              return img ? { ...it, imageUrl: img } : it;
+            })
+          };
+        }
+      } catch {}
       setDrafts(prev => prev.map(d => (d.id === draftId ? ordered : d)));
     } catch (e) {
       const msg = typeof e?.response?.data === 'string' ? e.response.data : (e?.message || 'Failed to remove item');
@@ -391,7 +509,29 @@ const CustomerMyOrders = () => {
           ...prev,
           [d.id]: (fres.data.items || []).map(it => it.id),
         }));
-        setDrafts(prev => prev.map(x => (x.id === d.id ? fres.data : x)));
+        // Enrich items if needed
+        let enriched = fres.data;
+        try {
+          const needs = Array.isArray(enriched.items) && enriched.items.some(it => !it?.imageUrl && !it?.book?.imageUrl);
+          if (needs) {
+            const res = await bookService.getBooks();
+            const catalog = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.content) ? res.data.content : []);
+            const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+            const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+            const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+            enriched = {
+              ...enriched,
+              items: (enriched.items || []).map(it => {
+                if (it?.imageUrl) return it;
+                const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+                const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+                const img = pickImg(match);
+                return img ? { ...it, imageUrl: img } : it;
+              }),
+            };
+          }
+        } catch (_) {}
+        setDrafts(prev => prev.map(x => (x.id === d.id ? enriched : x)));
       } finally {
         setLoadingDetails(false);
       }
@@ -455,6 +595,7 @@ const CustomerMyOrders = () => {
                     >
                       <Box component="thead">
                         <Box component="tr">
+                          <Box component="th" sx={{ textAlign: 'left', width: 44 }} />
                           <Box component="th" sx={{ textAlign: 'left' }}>Title</Box>
                           <Box component="th" sx={{ textAlign: 'left' }}>Author</Box>
                           <Box component="th" sx={{ textAlign: 'center' }}>Qty</Box>
@@ -482,7 +623,29 @@ const CustomerMyOrders = () => {
                               key={item.id}
                               transition={{ duration: 0.15, ease: 'easeOut' }}
                             >
-                              <Box component="td" sx={{ p: 1 }}><b>{item.bookTitle || '-'}</b></Box>
+                              <Box component="td" sx={{ p: 1 }}>
+                            {(() => {
+                              const img = (
+                                item.imageUrl ||
+                                item.bookImageUrl ||
+                                item.coverUrl ||
+                                item.imagePath ||
+                                (item.book && (item.book.imageUrl || item.book.coverUrl))
+                              );
+                              return img ? (
+                                <img
+                                  src={resolveImageUrl(img)}
+                                  alt={item.bookTitle || 'cover'}
+                                  style={{ width: 24, height: 34, objectFit: 'cover', borderRadius: 3, cursor: 'zoom-in' }}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                  onClick={() => setPreviewSrc(resolveImageUrl(img)) || setPreviewOpen(true)}
+                                />
+                              ) : (
+                                <Box sx={{ width: 24, height: 34, borderRadius: 1, bgcolor: 'action.hover' }} />
+                              );
+                            })()}
+                          </Box>
+                          <Box component="td" sx={{ p: 1 }}><b>{item.bookTitle || '-'}</b></Box>
                               <Box component="td" sx={{ p: 1 }}>{item.bookAuthor || '-'}</Box>
                               <Box component="td" sx={{ p: 1, textAlign: 'center' }}>
                                 <TextField
@@ -559,7 +722,7 @@ const CustomerMyOrders = () => {
 
   return (
     <BackgroundFX>
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 1100, mx: 'auto' }}>
+    <Box sx={{ pt: { xs: 1, sm: 2, md: 3 }, pb: { xs: 1, sm: 2, md: 3 }, pr: { xs: 1, sm: 2, md: 3 }, pl: 0, maxWidth: 1100, ml: 0, mr: 'auto' }}>
       <SectionHeader
         title="My Orders"
         subtitle="Review approved orders and manage your drafts. Use search and sorting to quickly find items."
@@ -629,11 +792,11 @@ const CustomerMyOrders = () => {
           {sortedOrders.length === 0 ? (
             <Typography color="text.secondary">You have no orders yet.</Typography>
           ) : (
-            sortedOrders.map(order => <OrderCard key={order.id} order={order} />)
+            sortedOrders.map(order => <OrderCard key={order.id} order={order} onPreview={(src) => { setPreviewSrc(src); setPreviewOpen(true); }} />)
           )}
         </CardContent>
       </GlassCard>
-
+      <ImagePreviewDialog open={previewOpen} src={previewSrc} onClose={() => setPreviewOpen(false)} />
     </Box>
     </BackgroundFX>
   );

@@ -20,3 +20,9 @@ html, body, #root {
   background: rgba(255, 255, 255, 0.25);
   border-radius: 4px;
 }
+
+/* Hide native Edge/IE password reveal/clear icons to avoid double eye buttons */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}

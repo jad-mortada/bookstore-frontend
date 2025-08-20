@@ -1,4 +1,11 @@
-import React, { useContext } from 'react';
+/**
+ * MainLayout.js
+ * App-wide shell with AppBar, Drawer navigation, and content outlet.
+ * - Shows role-based nav links.
+ * - Pulls user avatar via `profileService.getMe()` and listens to `avatar:updated` events.
+ * - Wraps content with background effects and global loading backdrop.
+ */
+import React, { useContext, useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Box, CssBaseline, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Divider, Avatar, useTheme, Tooltip, Menu, MenuItem } from '@mui/material';
 import BackgroundFX from '../ui/BackgroundFX';
@@ -7,6 +14,7 @@ import { AuthContext } from '../../../shared/contexts/AuthContext';
 import { useLoading } from '../../../shared/contexts/LoadingContext';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
+import profileService from '../../../api/profile.api';
 
 const drawerWidth = 220;
 
@@ -24,6 +32,10 @@ const navLinks = [
 ];
 
 
+/**
+ * Main application layout.
+ * @param {{ children?: React.ReactNode }} props
+ */
 export default function MainLayout({ children }) {
   const location = useLocation();
   const theme = useTheme();
@@ -31,11 +43,42 @@ export default function MainLayout({ children }) {
   const navigate = useNavigate();
   const { loading } = useLoading();
   const [avatarMenuAnchor, setAvatarMenuAnchor] = React.useState(null);
+  const [avatarUrl, setAvatarUrl] = useState();
+  const [adminMenuAnchor, setAdminMenuAnchor] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        // Only fetch if logged in
+        if (user) {
+          const me = await profileService.getMe();
+          if (mounted) setAvatarUrl(me?.avatarUrl);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, [user]);
+
+  // Live update header avatar when profile page uploads/removes photo
+  useEffect(() => {
+    const onAvatarUpdated = (e) => {
+      const next = e?.detail?.avatarUrl || undefined;
+      setAvatarUrl(next);
+    };
+    window.addEventListener('avatar:updated', onAvatarUpdated);
+    return () => window.removeEventListener('avatar:updated', onAvatarUpdated);
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
+
+  // Avatar editing is handled within the Profile page only
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', background: theme.palette.background.default }}>
@@ -46,12 +89,17 @@ export default function MainLayout({ children }) {
             Bookstore Management
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-            <IconButton onClick={e => setAvatarMenuAnchor(e.currentTarget)} size="small">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar sx={{ bgcolor: theme.palette.primary.light, width: 40, height: 40, fontWeight: 700, fontSize: 22, cursor: 'pointer' }}>
-                  {user?.firstName ? user.firstName.charAt(0) : user?.email?.charAt(0)?.toUpperCase()}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <IconButton onClick={e => setAvatarMenuAnchor(e.currentTarget)} size="small">
+                <Avatar
+                  sx={{ bgcolor: theme.palette.primary.light, width: 40, height: 40, fontWeight: 700, fontSize: 22, cursor: 'pointer' }}
+                  src={avatarUrl || undefined}
+                >
+                  {!avatarUrl && (user?.firstName ? user.firstName.charAt(0) : user?.email?.charAt(0)?.toUpperCase())}
                 </Avatar>
-                {user?.roles?.includes('ROLE_SUPER_ADMIN') && (
+              </IconButton>
+              {user?.roles?.includes('ROLE_SUPER_ADMIN') && (
+                <IconButton size="small" sx={{ p: 0 }} onClick={(e) => setAdminMenuAnchor(e.currentTarget)}>
                   <Box sx={{
                     px: 1.5,
                     py: 0.5,
@@ -66,9 +114,9 @@ export default function MainLayout({ children }) {
                   }}>
                     SUPER ADMIN
                   </Box>
-                )}
-              </Box>
-            </IconButton>
+                </IconButton>
+              )}
+            </Box>
             <Menu
               anchorEl={avatarMenuAnchor}
               open={Boolean(avatarMenuAnchor)}
@@ -77,10 +125,16 @@ export default function MainLayout({ children }) {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
               <MenuItem onClick={() => { setAvatarMenuAnchor(null); navigate('/profile'); }}>Profile</MenuItem>
-              {user?.roles?.includes('ROLE_SUPER_ADMIN') && (
-                <MenuItem onClick={() => { setAvatarMenuAnchor(null); navigate('/admins'); }}>Manage Admins</MenuItem>
-              )}
               <MenuItem onClick={() => { setAvatarMenuAnchor(null); handleLogout(); }}>Logout</MenuItem>
+            </Menu>
+            <Menu
+              anchorEl={adminMenuAnchor}
+              open={Boolean(adminMenuAnchor)}
+              onClose={() => setAdminMenuAnchor(null)}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <MenuItem onClick={() => { setAdminMenuAnchor(null); navigate('/admins'); }}>Manage Admins</MenuItem>
             </Menu>
             <Tooltip title="Logout">
               <IconButton color="inherit" onClick={handleLogout}>
@@ -99,7 +153,8 @@ export default function MainLayout({ children }) {
             width: drawerWidth,
             boxSizing: 'border-box',
             background: theme.palette.background.paper,
-            color: theme.palette.text.primary
+            color: theme.palette.text.primary,
+           
           }
         }}
       >
@@ -133,7 +188,7 @@ export default function MainLayout({ children }) {
         </List>
       </Drawer>
       <BackgroundFX>
-        <Box component="main" sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px`, mt: 8 }}>
+        <Box component="main" sx={{ flexGrow: 1, pr: 3, pt: 3, pb: 3, pl: 0, ml: `calc(${drawerWidth}px - 134px)`, mt: 8 }}>
           {children ? children : <Outlet />}
         </Box>
       </BackgroundFX>

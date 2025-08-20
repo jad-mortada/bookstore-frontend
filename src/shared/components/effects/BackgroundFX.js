@@ -1,7 +1,22 @@
+/**
+ * BackgroundFX.js (effects)
+ * Decorative animated background wrapper that leverages `framer-motion` for
+ * subtle entrance transitions and MUI `Box` for layout. Renders a fixed
+ * gradient background and places children above it.
+ *
+ * Documentation-only change; behavior remains the same.
+ */
 import React from 'react';
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 
+/**
+ * BackgroundFX (effects)
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Content rendered over the background layer.
+ * @returns {JSX.Element}
+ */
 const BackgroundFX = ({ children }) => {
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', width: '100%', overflow: 'hidden' }}>

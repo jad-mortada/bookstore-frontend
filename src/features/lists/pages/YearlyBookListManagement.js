@@ -10,11 +10,13 @@ import { AuthContext } from '../../../shared/contexts/AuthContext';
 import { useLoading } from '../../../shared/contexts/LoadingContext';
 import classService from '../../../api/classes.api';
 import listService from '../../../api/lists.api';
+import bookService from '../../../api/books.api';
 import schoolService from '../../../api/schools.api';
 import BackgroundFX from '../../../shared/components/effects/BackgroundFX';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import SectionHeader from '../../../shared/components/ui/SectionHeader';
+import { resolveImageUrl } from '../../../shared/utils/image';
 
 const initialForm = { classId: '', year: '' };
 
@@ -42,6 +44,10 @@ const YearlyBookListManagement = () => {
   const [viewBooksListId, setViewBooksListId] = useState(null);
   const [viewBooks, setViewBooks] = useState([]);
   const [viewBooksLoading, setViewBooksLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState('');
+
+  // No client-side cover enrichment; backend provides imageUrl
 
   // Load all data on mount
   useEffect(() => {
@@ -169,7 +175,20 @@ const YearlyBookListManagement = () => {
     setViewBooksLoading(true);
     try {
       const res = await listService.getListBooks(listId);
-      setViewBooks(res.data || []);
+      let items = Array.isArray(res.data) ? res.data : [];
+      // If imageUrl is missing, enrich from catalog
+      if (items.some(b => !b.imageUrl)) {
+        try {
+          const booksRes = await bookService.getBooks();
+          const byId = new Map((Array.isArray(booksRes.data) ? booksRes.data : []).map(b => [String(b.id), b]));
+          items = items.map(lb => {
+            if (lb.imageUrl) return lb;
+            const match = byId.get(String(lb.bookId));
+            return match ? { ...lb, imageUrl: match.imageUrl } : lb;
+          });
+        } catch {}
+      }
+      setViewBooks(items);
     } catch {
       setViewBooks([]);
     } finally {
@@ -385,7 +404,15 @@ const YearlyBookListManagement = () => {
             ) : (
               <Box>
                 {viewBooks.map(book => (
-                  <Box key={book.listBookId || book.bookId || book.id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box key={book.listBookId || book.bookId || book.id} sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1.5 }}>
+                    {(() => {
+                      const img = book.imageUrl || book.bookImageUrl || book.imageURL || (book.book && (book.book.imageUrl || book.book.imageURL)) || book.coverUrl || book.imagePath;
+                      return img ? (
+                        <img src={resolveImageUrl(img)} alt={book.bookTitle || book.title || 'cover'} style={{ width: 32, height: 44, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }} onError={(e) => { e.currentTarget.style.display = 'none'; }} onClick={() => { setPreviewSrc(resolveImageUrl(img)); setPreviewOpen(true); }} />
+                      ) : (
+                        <Box sx={{ width: 32, height: 44, borderRadius: 1, bgcolor: 'action.hover' }} />
+                      );
+                    })()}
                     <Typography sx={{ flex: 2 }}>{book.bookTitle || book.title}</Typography>
                     <Typography sx={{ flex: 1 }}>{book.bookAuthor || book.author || ''}</Typography>
                     <Button
@@ -402,6 +429,20 @@ const YearlyBookListManagement = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setViewBooksOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+        {/* Image Preview Dialog */}
+        <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md">
+          <DialogTitle>Cover Preview</DialogTitle>
+          <DialogContent dividers>
+            {previewSrc && (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <img src={previewSrc} alt="cover" style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain' }} />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPreviewOpen(false)}>Close</Button>
           </DialogActions>
         </Dialog>
       </Box>

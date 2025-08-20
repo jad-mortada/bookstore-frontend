@@ -4,7 +4,10 @@ import { CheckCircleRounded } from '@mui/icons-material';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import { DataGrid } from '@mui/x-data-grid';
 import tempOrderService from '../../../api/tempOrders.api';
+import bookService from '../../../api/books.api';
 import { AuthContext } from '../../../shared/contexts/AuthContext';
+import { resolveImageUrl } from '../../../shared/utils/image';
+import ImagePreviewDialog from '../../../shared/components/ImagePreviewDialog';
 
 export default function AdminTempOrders() {
   const { user } = useContext(AuthContext);
@@ -17,6 +20,8 @@ export default function AdminTempOrders() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewSrc, setPreviewSrc] = useState('');
  
   const fmtDate = React.useCallback((iso) => {
     if (!iso) return '-';
@@ -98,6 +103,31 @@ export default function AdminTempOrders() {
       setDetailLoading(false);
     }
   };
+
+  // Enrich missing cover images for items inside the details dialog
+  useEffect(() => {
+    const enrich = async () => {
+      try {
+        if (!detail || !Array.isArray(detail.items) || detail.items.length === 0) return;
+        const needs = detail.items.some(it => !it?.imageUrl && !it?.book?.imageUrl);
+        if (!needs) return;
+        const res = await bookService.getBooks();
+        const catalog = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.content) ? res.data.content : []);
+        const byId = new Map((catalog || []).map(b => [String(b?.id), b]));
+        const byTitle = new Map((catalog || []).map(b => [String((b?.title || '').toLowerCase().trim()), b]));
+        const pickImg = (b) => (b?.imageUrl || b?.bookImageUrl || b?.coverUrl || b?.imagePath || (b?.book && (b.book.imageUrl || b.book.coverUrl)) || '');
+        const items = (detail.items || []).map(it => {
+          if (it?.imageUrl) return it;
+          const keyTitle = String((it?.bookTitle || it?.title || '')).toLowerCase().trim();
+          const match = byId.get(String(it?.bookId)) || byTitle.get(keyTitle);
+          const img = pickImg(match);
+          return img ? { ...it, imageUrl: img } : it;
+        });
+        setDetail(prev => prev ? { ...prev, items } : prev);
+      } catch (_) {}
+    };
+    enrich();
+  }, [detail]);
 
   if (!isAdmin) return null;
 
@@ -267,6 +297,7 @@ export default function AdminTempOrders() {
                   >
                     <Box component="thead">
                       <Box component="tr">
+                        <Box component="th" sx={{ textAlign: 'left', width: 48 }} />
                         <Box component="th" sx={{ textAlign: 'left' }}>Title</Box>
                         <Box component="th" sx={{ textAlign: 'left' }}>Author</Box>
                         <Box component="th" sx={{ textAlign: 'center' }}>Condition</Box>
@@ -294,6 +325,22 @@ export default function AdminTempOrders() {
                         
                         return (
                           <Box component="tr" key={item.id || `${item.bookId}-${index}` }>
+                            <Box component="td" sx={{ p: 1.5 }}>
+                              {(() => {
+                                const img = item.imageUrl;
+                                return img ? (
+                                  <img
+                                    src={resolveImageUrl(img)}
+                                    alt={item.bookTitle || item.title || 'cover'}
+                                    style={{ width: 28, height: 40, objectFit: 'cover', borderRadius: 4, cursor: 'zoom-in' }}
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    onClick={() => { setPreviewSrc(resolveImageUrl(img)); setPreviewOpen(true); }}
+                                  />
+                                ) : (
+                                  <Box sx={{ width: 28, height: 40, borderRadius: 1, bgcolor: 'action.hover' }} />
+                                );
+                              })()}
+                            </Box>
                             <Box component="td" sx={{ p: 1.5 }}><b>{item.bookTitle || item.title || 'N/A'}</b></Box>
                             <Box component="td" sx={{ p: 1.5 }}>{item.bookAuthor || item.author || 'N/A'}</Box>
                             <Box component="td" sx={{ p: 1.5, textAlign: 'center' }}>
@@ -357,6 +404,7 @@ export default function AdminTempOrders() {
         </DialogActions>
       </Dialog>
 
+      <ImagePreviewDialog open={previewOpen} src={previewSrc} onClose={() => setPreviewOpen(false)} />
       
     </Box>
   );

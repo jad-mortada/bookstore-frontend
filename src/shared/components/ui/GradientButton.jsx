@@ -1,6 +1,19 @@
+/**
+ * GradientButton.jsx
+ * Wrapper around MUI Button that applies a branded gradient style when variant !== 'text'.
+ * Falls back to a text-style button with subtle hover when variant === 'text'.
+ */
+
 import React from 'react';
 import Button from '@mui/material/Button';
 
+/**
+ * @param {Object} props
+ * @param {React.ReactNode} props.children Button contents
+ * @param {object} [props.sx] Extra MUI sx overrides
+ * @param {'inherit'|'primary'|'secondary'|'success'|'error'|'info'|'warning'} [props.color='primary']
+ * @param {'text'|'outlined'|'contained'} [props.variant='contained']
+ */
 const GradientButton = ({ children, sx = {}, color = 'primary', variant = 'contained', ...props }) => {
   return (
     <Button
