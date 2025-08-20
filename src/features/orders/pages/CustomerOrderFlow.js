@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, CardHeader, CardContent, Typography, Button, TextField, MenuItem, Snackbar, Alert, DialogActions, Stack, Checkbox, IconButton, Autocomplete, CircularProgress, Tooltip } from '@mui/material';
+import { Box, CardHeader, CardContent, Typography, Button, TextField, MenuItem, Snackbar, Alert, Stack, Checkbox, IconButton, Autocomplete, CircularProgress, Tooltip } from '@mui/material';
 import GlassCard from '../../../shared/components/ui/GlassCard';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import BackgroundFX from '../../../shared/components/ui/BackgroundFX';
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import RemoveShoppingCartRounded from '@mui/icons-material/RemoveShoppingCartRounded';
 import ShoppingCartCheckoutRounded from '@mui/icons-material/ShoppingCartCheckoutRounded';
+import AddRounded from '@mui/icons-material/AddRounded';
+import RemoveRounded from '@mui/icons-material/RemoveRounded';
 import { DataGrid } from '@mui/x-data-grid';
 import { motion } from 'framer-motion';
 import schoolService from '../../../api/schools.api';
@@ -757,16 +759,47 @@ const CustomerOrderFlow = () => {
                   {
                     field: 'quantity',
                     headerName: 'Qty',
-                    flex: 0.6,
-                    renderCell: ({ row }) => (
-                      <TextField
-                        type="number"
-                        value={row.quantity}
-                        onChange={e => handleOrderChange(currentItems.findIndex(i => i.bookId === row.bookId), 'quantity', Math.max(1, Number(e.target.value)))}
-                        inputProps={{ min: 1, style: { width: '8vw', minWidth: '70px' } }}
-                        size="small"
-                      />
-                    ),
+                    flex: 0.9,
+                    sortable: false,
+                    filterable: false,
+                    renderCell: ({ row }) => {
+                      const idx = currentItems.findIndex(i => i.bookId === row.bookId);
+                      const qty = Number(row.quantity || 1);
+                      const setQty = (n) => handleOrderChange(idx, 'quantity', Math.max(1, Number(n)));
+                      return (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%', justifyContent: 'center' }}>
+                          <IconButton size="small" color="inherit" aria-label="Decrease quantity" onClick={() => setQty(qty - 1)}>
+                            <RemoveRounded fontSize="small" />
+                          </IconButton>
+                          <TextField
+                            type="number"
+                            value={qty}
+                            onChange={e => setQty(e.target.value)}
+                            inputProps={{ min: 1 }}
+                            size="small"
+                            sx={{
+                              width: 72,
+                              '& .MuiInputBase-input': {
+                                textAlign: 'center',
+                                paddingTop: 0.9,
+                                paddingBottom: 0.9,
+                                lineHeight: 1.5,
+                              },
+                              '& input[type=number]': {
+                                MozAppearance: 'textfield',
+                              },
+                              '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+                                WebkitAppearance: 'none',
+                                margin: 0,
+                              },
+                            }}
+                          />
+                          <IconButton size="small" color="primary" aria-label="Increase quantity" onClick={() => setQty(qty + 1)}>
+                            <AddRounded fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      );
+                    },
                   },
                   {
                     field: 'conditionType',
@@ -778,6 +811,16 @@ const CustomerOrderFlow = () => {
                         value={row.conditionType}
                         onChange={e => handleOrderChange(currentItems.findIndex(i => i.bookId === row.bookId), 'conditionType', e.target.value)}
                         size="small"
+                        sx={{
+                          width: 110,
+                          '& .MuiSelect-select': {
+                            display: 'flex',
+                            alignItems: 'center',
+                            paddingTop: 0.9,
+                            paddingBottom: 0.9,
+                            lineHeight: 1.5,
+                          },
+                        }}
                       >
                         <MenuItem value="NEW">New</MenuItem>
                         <MenuItem value="USED">Used</MenuItem>
@@ -799,27 +842,32 @@ const CustomerOrderFlow = () => {
                 ]}
                 hideFooter
                 getRowId={row => getRowKey(row)}
-                sx={(theme) => ({ borderRadius: 2, backgroundColor: theme.palette.background.paper, boxShadow: theme.shadows[1], mt: 2 })}
-                autoHeight
-                loading={false}
-                localeText={{ noRowsLabel: 'No books found.' }}
+                sx={(theme) => ({
+                  borderRadius: 2,
+                  backgroundColor: theme.palette.background.paper,
+                  boxShadow: theme.shadows[1],
+                  mt: 2,
+                  border: '1px solid',
+                  borderColor: theme.palette.divider,
+                  '& .MuiDataGrid-columnHeaders': {
+                    backgroundColor: 'rgba(15,23,42,0.035)',
+                    fontWeight: 600,
+                  },
+                  '& .MuiDataGrid-columnHeader, & .MuiDataGrid-cell': {
+                    paddingTop: theme.spacing(2),
+                    paddingBottom: theme.spacing(2),
+                  },
+                  '& .MuiDataGrid-row:nth-of-type(even)': {
+                    backgroundColor: theme.palette.action.hover,
+                  },
+                  '& .MuiDataGrid-row:hover': {
+                    backgroundColor: 'rgba(15,23,42,0.03)',
+                  },
+                })}
+                rowHeight={80}
+                headerHeight={72}
               />
             </Box>
-            <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
-              <Tooltip title="Close this list without adding items">
-                <Button onClick={() => {}} aria-label="Cancel" size="small">Cancel</Button>
-              </Tooltip>
-              <Tooltip title="Add all checked books to your order">
-                <span>
-                  <Button onClick={handleAddCurrentSelection} aria-label="Add selected books" variant="outlined" size="small">Add Selected</Button>
-                </span>
-              </Tooltip>
-              <Tooltip title="Create or update your draft with the current items">
-                <span>
-                  <GradientButton onClick={handleSubmitOrder} aria-label="Place order" size="small">Place Order</GradientButton>
-                </span>
-              </Tooltip>
-            </DialogActions>
           </CardContent>
         </GlassCard>
       )}
@@ -835,9 +883,23 @@ const CustomerOrderFlow = () => {
                   <Button size="small" aria-label="Clear selection" onClick={() => setSelectedIds([])}>Clear Selection</Button>
                 </Tooltip>
               </Stack>
-              <Typography variant="body2">
-                Selected: <b>{selectedIds.length}</b>
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="body2">
+                  Selected: <b>{selectedIds.length}</b>
+                </Typography>
+                <Tooltip title="Add all checked books to your order">
+                  <span>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      disabled={!selectedIds.length}
+                      onClick={handleAddCurrentSelection}
+                    >
+                      Add Selected
+                    </Button>
+                  </span>
+                </Tooltip>
+              </Stack>
             </Stack>
           </CardContent>
         </GlassCard>
@@ -859,7 +921,11 @@ const CustomerOrderFlow = () => {
                   '& thead': {
                     bgcolor: 'rgba(15,23,42,0.035)'
                   },
-                  '& th, & td': { p: 1 },
+                  '& th, & td': {
+                    py: 1.5,
+                    px: 1,
+                    lineHeight: 1.6,
+                  },
                   '& tr': { borderBottom: '1px solid', borderColor: (t) => t.palette.divider },
                   '& tbody tr:hover': { bgcolor: 'rgba(15,23,42,0.03)' }
                 }}
@@ -903,6 +969,16 @@ const CustomerOrderFlow = () => {
                           value={item.conditionType}
                           onChange={e => handleAccumulatedChange(idx, 'conditionType', e.target.value)}
                           size="small"
+                          sx={{
+                            width: 110,
+                            '& .MuiSelect-select': {
+                              display: 'flex',
+                              alignItems: 'center',
+                              paddingTop: 0.9,
+                              paddingBottom: 0.9,
+                              lineHeight: 1.5,
+                            },
+                          }}
                         >
                           <MenuItem value="NEW">New</MenuItem>
                           <MenuItem value="USED">Used</MenuItem>
