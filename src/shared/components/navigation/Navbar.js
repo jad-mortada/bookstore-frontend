@@ -33,13 +33,13 @@ const Navbar = () => {
       elevation={0}
       sx={{
         backgroundColor: 'rgba(255,255,255,0.6)',
-        backdropFilter: 'saturate(150%) blur(8px)',
-        borderBottom: '1px solid rgba(15,23,42,0.06)',
+        backdropFilter: 'saturate(150%) blur(0.55vw)',
+        borderBottom: '0.07vw solid rgba(15,23,42,0.06)',
         color: (theme) => theme.palette.text.primary,
       }}
     >
-      <Toolbar sx={{ minHeight: 60, color: (t) => t.palette.text.primary }}>
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: 0.3, color: 'inherit' }}>
+      <Toolbar sx={{ minHeight: { xs: '8vh', md: '6.5vh' }, color: (t) => t.palette.text.primary }}>
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800, letterSpacing: '0.02em', color: 'inherit' }}>
           Bookstore Management
         </Typography>
         {user ? (
