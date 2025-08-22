@@ -27,7 +27,7 @@ const getOfficialList = (classId, year, schoolId) => {
   const yr = Number(year);
   // Only include schoolId in the query if provided
   const sid = schoolId != null ? `&schoolId=${Number(schoolId)}` : '';
-  
+
   return axiosInstance.get(`${LIST_API}?classId=${cid}&year=${yr}${sid}`);
 };
 
@@ -65,7 +65,7 @@ const getOrderById = (id) => axiosInstance.get(`${API}/${id}`);
  * @param {string|number} customerId - The ID of the customer
  * @returns {Promise<import('axios').AxiosResponse>} Response containing the customer's orders
  */
-const getOrdersByCustomer = (customerId) => 
+const getOrdersByCustomer = (customerId) =>
   axiosInstance.get(`${API}/by-customer/${customerId}`);
 
 /**
@@ -92,22 +92,22 @@ const deleteOrder = (id) => axiosInstance.delete(`${API}/${id}`);
 const customerBookOrderService = {
   /** @see getOfficialList */
   getOfficialList,
-  
+
   /** @see createOrder */
   createOrder,
-  
+
   /** @see getAllOrders */
   getAllOrders,
-  
+
   /** @see getOrderById */
   getOrderById,
-  
+
   /** @see getOrdersByCustomer */
   getOrdersByCustomer,
-  
+
   /** @see updateOrder */
   updateOrder,
-  
+
   /** @see deleteOrder */
   deleteOrder,
 };

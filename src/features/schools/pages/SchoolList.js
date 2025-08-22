@@ -236,40 +236,40 @@ const SchoolList = () => {
             />
           </Box>
         </GlassCard>
-      
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>{editId ? 'Edit School' : 'Add School'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            error={!!errors.name}
-            helperText={errors.name}
-            required
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Address"
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            error={!!errors.address}
-            helperText={errors.address}
-            required
-          />
-          <TextField margin="normal" fullWidth label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
-          <Button onClick={handleClose} size="small">Cancel</Button>
-          <GradientButton onClick={handleSubmit} size="small">{editId ? 'Update' : 'Create'}</GradientButton>
-        </DialogActions>
-      </Dialog>
-    </Box>
+
+        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>{editId ? 'Edit School' : 'Add School'}</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Name"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              error={!!errors.name}
+              helperText={errors.name}
+              required
+            />
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Address"
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              error={!!errors.address}
+              helperText={errors.address}
+              required
+            />
+            <TextField margin="normal" fullWidth label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} />
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
+            <Button onClick={handleClose} size="small">Cancel</Button>
+            <GradientButton onClick={handleSubmit} size="small">{editId ? 'Update' : 'Create'}</GradientButton>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </BackgroundFX>
   );
 };

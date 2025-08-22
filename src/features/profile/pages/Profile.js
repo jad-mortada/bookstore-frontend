@@ -268,12 +268,14 @@ const Profile = () => {
                           )
                         }}
                       />
-                      {!!newPassword && (() => { const s = evaluatePassword(newPassword); return (
-                        <Stack spacing={0.5} sx={{ mt: -1 }}>
-                          <LinearProgress variant="determinate" value={s.percent} color={s.color} sx={{ height: 6, borderRadius: 1 }} />
-                          <Typography variant="caption" color="text.secondary">Strength: {s.label}</Typography>
-                        </Stack>
-                      ); })()}
+                      {!!newPassword && (() => {
+                        const s = evaluatePassword(newPassword); return (
+                          <Stack spacing={0.5} sx={{ mt: -1 }}>
+                            <LinearProgress variant="determinate" value={s.percent} color={s.color} sx={{ height: 6, borderRadius: 1 }} />
+                            <Typography variant="caption" color="text.secondary">Strength: {s.label}</Typography>
+                          </Stack>
+                        );
+                      })()}
                       <TextField
                         label="Confirm New Password"
                         type={showConfirmPw ? 'text' : 'password'}

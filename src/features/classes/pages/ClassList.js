@@ -334,11 +334,11 @@ const ClassList = () => {
           </TextField>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
-  <Button onClick={handleClose} size="small">Cancel</Button>
-  <GradientButton onClick={handleSubmit} size="small">{editId ? 'Update' : 'Create'}</GradientButton>
-</DialogActions>
+          <Button onClick={handleClose} size="small">Cancel</Button>
+          <GradientButton onClick={handleSubmit} size="small">{editId ? 'Update' : 'Create'}</GradientButton>
+        </DialogActions>
       </Dialog>
-      
+
     </BackgroundFX>
   );
 };

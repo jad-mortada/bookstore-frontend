@@ -72,11 +72,11 @@ const getListBooks = (listId) => axiosInstance.get(`${BASE_URL}/${listId}/books`
  * @returns {Promise<import('axios').AxiosResponse>} Response with the created book-list association
  * @throws {Error} If the list or book is not found, or if the book is already in the list
  */
-const linkBookToList = (listId, bookId, options = {}) => 
-  axiosInstance.post(`${BASE_URL}/books`, { 
-    listId, 
+const linkBookToList = (listId, bookId, options = {}) =>
+  axiosInstance.post(`${BASE_URL}/books`, {
+    listId,
     bookId,
-    ...options 
+    ...options
   });
 
 /**
@@ -86,7 +86,7 @@ const linkBookToList = (listId, bookId, options = {}) =>
  * @returns {Promise<import('axios').AxiosResponse>} Empty response on success
  * @throws {Error} If the association is not found or the request fails
  */
-const unlinkBookFromList = (listBookId) => 
+const unlinkBookFromList = (listBookId) =>
   axiosInstance.delete(`${BASE_URL}/books/${listBookId}`);
 
 /**
@@ -96,22 +96,22 @@ const unlinkBookFromList = (listBookId) =>
 const listService = {
   /** @see getLists */
   getLists,
-  
+
   /** @see createList */
   createList,
-  
+
   /** @see updateList */
   updateList,
-  
+
   /** @see deleteList */
   deleteList,
-  
+
   /** @see getListBooks */
   getListBooks,
-  
+
   /** @see linkBookToList */
   linkBookToList,
-  
+
   /** @see unlinkBookFromList */
   unlinkBookFromList,
 };

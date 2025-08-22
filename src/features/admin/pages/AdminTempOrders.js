@@ -22,14 +22,14 @@ export default function AdminTempOrders() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState('');
- 
+
   const fmtDate = React.useCallback((iso) => {
     if (!iso) return '-';
     try {
       const datePart = String(iso).split('T')[0];
       const [y, m, d] = datePart.split('-');
       if (y && m && d) return `${d}/${m}/${y}`;
-    } catch (_) {}
+    } catch (_) { }
     return '-';
   }, []);
 
@@ -61,7 +61,7 @@ export default function AdminTempOrders() {
           }));
           const nameById = new Map(enriched.filter(Boolean).map(e => [e.id, e.customerName]));
           data = data.map(r => (nameById.has(r.id) ? { ...r, customerName: nameById.get(r.id) } : r));
-        } catch {}
+        } catch { }
       }
       setRows(data);
     } catch (e) {
@@ -124,7 +124,7 @@ export default function AdminTempOrders() {
           return img ? { ...it, imageUrl: img } : it;
         });
         setDetail(prev => prev ? { ...prev, items } : prev);
-      } catch (_) {}
+      } catch (_) { }
     };
     enrich();
   }, [detail]);
@@ -144,7 +144,7 @@ export default function AdminTempOrders() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', mx: 0 }}>
       <Card elevation={2} sx={{ borderRadius: 3 }}>
-        <CardHeader 
+        <CardHeader
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
               <Typography variant="h6" sx={{ mr: 'auto' }}>Submitted Draft Orders</Typography>
@@ -233,48 +233,48 @@ export default function AdminTempOrders() {
               {/* Order Header */}
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
-                  <Chip 
-                    size="small" 
+                  <Chip
+                    size="small"
                     color={
-                      detail.status === 'APPROVED' ? 'success' : 
-                      detail.status === 'SUBMITTED' ? 'info' : 'default'
-                    } 
-                    label={`Status: ${detail.status || 'PENDING'}`} 
+                      detail.status === 'APPROVED' ? 'success' :
+                        detail.status === 'SUBMITTED' ? 'info' : 'default'
+                    }
+                    label={`Status: ${detail.status || 'PENDING'}`}
                   />
-                  <Chip 
-                    size="small" 
-                    variant="outlined" 
+                  <Chip
+                    size="small"
+                    variant="outlined"
                     label={`Order Date: ${detail.createdAt ? new Date(detail.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
-                    }) : 'N/A'}`} 
+                    }) : 'N/A'}`}
                   />
-                  <Chip 
-                    size="small" 
-                    variant="outlined" 
-                    label={`Customer: ${[detail.customerFirstName, detail.customerLastName].filter(Boolean).join(' ') || detail.customerId || 'N/A'}`} 
+                  <Chip
+                    size="small"
+                    variant="outlined"
+                    label={`Customer: ${[detail.customerFirstName, detail.customerLastName].filter(Boolean).join(' ') || detail.customerId || 'N/A'}`}
                   />
                   {detail.schoolName && (
-                    <Chip 
-                      size="small" 
-                      variant="outlined" 
-                      label={`School: ${detail.schoolName}`} 
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`School: ${detail.schoolName}`}
                     />
                   )}
                   {detail.className && (
-                    <Chip 
-                      size="small" 
-                      variant="outlined" 
-                      label={`Class: ${detail.className}`} 
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`Class: ${detail.className}`}
                     />
                   )}
                 </Box>
                 <Divider sx={{ my: 2 }} />
               </Box>
-              
+
               {/* Order Items */}
               {Array.isArray(detail.items) && detail.items.length > 0 ? (
                 <Box sx={{ overflowX: 'auto' }}>
@@ -322,9 +322,9 @@ export default function AdminTempOrders() {
                           ? committedSubtotal
                           : unitPrice * quantity;
                         const displayBase = isUsed ? (unitPrice * 2) : basePrice;
-                        
+
                         return (
-                          <Box component="tr" key={item.id || `${item.bookId}-${index}` }>
+                          <Box component="tr" key={item.id || `${item.bookId}-${index}`}>
                             <Box component="td" sx={{ p: 1.5 }}>
                               {(() => {
                                 const img = item.imageUrl;
@@ -344,9 +344,9 @@ export default function AdminTempOrders() {
                             <Box component="td" sx={{ p: 1.5 }}><b>{item.bookTitle || item.title || 'N/A'}</b></Box>
                             <Box component="td" sx={{ p: 1.5 }}>{item.bookAuthor || item.author || 'N/A'}</Box>
                             <Box component="td" sx={{ p: 1.5, textAlign: 'center' }}>
-                              <Chip 
-                                label={item.conditionType || 'NEW'} 
-                                size="small" 
+                              <Chip
+                                label={item.conditionType || 'NEW'}
+                                size="small"
                                 color={isUsed ? 'default' : 'primary'}
                                 variant="outlined"
                               />
@@ -405,7 +405,7 @@ export default function AdminTempOrders() {
       </Dialog>
 
       <ImagePreviewDialog open={previewOpen} src={previewSrc} onClose={() => setPreviewOpen(false)} />
-      
+
     </Box>
   );
 }

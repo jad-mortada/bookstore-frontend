@@ -26,14 +26,22 @@ const ListBooksManagement = () => {
   const [search, setSearch] = useState('');
 
   // Load all data on mount
-  useEffect(() => { setLoading(true);
-    listService.getLists().then(res => setLists(res.data || [])).finally(() => setLoading(false)); }, [setLoading]);
-  useEffect(() => { setLoading(true);
-    bookService.getBooks().then(res => setBooks(res.data || [])).finally(() => setLoading(false)); }, [setLoading]);
-  useEffect(() => { setLoading(true);
-    classService.getClasses().then(res => setClasses(res.data || [])).finally(() => setLoading(false)); }, [setLoading]);
-  useEffect(() => { setLoading(true);
-    schoolService.getSchools().then(res => setSchools(res.data || [])).finally(() => setLoading(false)); }, [setLoading]);
+  useEffect(() => {
+    setLoading(true);
+    listService.getLists().then(res => setLists(res.data || [])).finally(() => setLoading(false));
+  }, [setLoading]);
+  useEffect(() => {
+    setLoading(true);
+    bookService.getBooks().then(res => setBooks(res.data || [])).finally(() => setLoading(false));
+  }, [setLoading]);
+  useEffect(() => {
+    setLoading(true);
+    classService.getClasses().then(res => setClasses(res.data || [])).finally(() => setLoading(false));
+  }, [setLoading]);
+  useEffect(() => {
+    setLoading(true);
+    schoolService.getSchools().then(res => setSchools(res.data || [])).finally(() => setLoading(false));
+  }, [setLoading]);
   useEffect(() => {
     if (selectedList && !isNaN(Number(selectedList))) {
       setLoading(true);
@@ -57,7 +65,7 @@ const ListBooksManagement = () => {
       try {
         const res = await listService.getListBooks(selectedList);
         setLinkedBooks(res.data || []);
-      } catch {}
+      } catch { }
     } catch (error) {
       const status = error?.response?.status;
       const serverMsg = typeof error?.response?.data === 'string' ? error.response.data : (error?.message || '');
@@ -139,7 +147,7 @@ const ListBooksManagement = () => {
                   rows={books.filter(b =>
                     !linkedBooks.some(lb => lb.bookId === b.id) &&
                     ((b.title ? b.title.toLowerCase() : '').includes(search.toLowerCase()) ||
-                     (b.author ? b.author.toLowerCase() : '').includes(search.toLowerCase()))
+                      (b.author ? b.author.toLowerCase() : '').includes(search.toLowerCase()))
                   )}
                   columns={[
                     {
@@ -189,10 +197,10 @@ const ListBooksManagement = () => {
             </>
           )}
         </GlassCard>
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
-    </Box>
+        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+        </Snackbar>
+      </Box>
     </BackgroundFX>
   );
 };

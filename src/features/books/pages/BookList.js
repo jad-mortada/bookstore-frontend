@@ -217,7 +217,7 @@ const BookList = () => {
                     { field: 'author', headerName: 'Author', flex: 1 },
                     { field: 'isbn', headerName: 'ISBN', flex: 1 },
                     { field: 'publisher', headerName: 'Publisher', flex: 1 },
-                    { field: 'price', headerName: 'Price', flex: 1 },
+                    { field: 'price', headerName: 'Price', flex: 0.4 },
                     {
                       field: 'actions',
                       headerName: 'Actions',
@@ -257,111 +257,111 @@ const BookList = () => {
             <Typography variant="h6">You are not authorized to access this page.</Typography>
           </Box>
         )}
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>{editId ? 'Edit Book' : 'Add Book'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Title"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            error={!!errors.title}
-            helperText={errors.title}
-            required
-          />
-          <Box sx={{ mt: 1 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Cover image</Typography>
-            {imagePreview ? (
-              <img src={imagePreview} alt="preview" style={{ width: 96, height: 128, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)' }} />
-            ) : (
-              <Box sx={{ width: 96, height: 128, borderRadius: 1, bgcolor: 'action.hover', border: '1px dashed', borderColor: 'divider' }} />
-            )}
+        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>{editId ? 'Edit Book' : 'Add Book'}</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Title"
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              error={!!errors.title}
+              helperText={errors.title}
+              required
+            />
             <Box sx={{ mt: 1 }}>
-              <Button variant="outlined" component="label" size="small">
-                {imageFile ? 'Change image' : 'Upload image'}
-                <input
-                  type="file"
-                  hidden
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setImageFile(file);
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setImagePreview(ev.target?.result || '');
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </Button>
+              <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Cover image</Typography>
+              {imagePreview ? (
+                <img src={imagePreview} alt="preview" style={{ width: 96, height: 128, objectFit: 'cover', borderRadius: 6, border: '1px solid rgba(0,0,0,0.1)' }} />
+              ) : (
+                <Box sx={{ width: 96, height: 128, borderRadius: 1, bgcolor: 'action.hover', border: '1px dashed', borderColor: 'divider' }} />
+              )}
+              <Box sx={{ mt: 1 }}>
+                <Button variant="outlined" component="label" size="small">
+                  {imageFile ? 'Change image' : 'Upload image'}
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setImageFile(file);
+                        const reader = new FileReader();
+                        reader.onload = (ev) => setImagePreview(ev.target?.result || '');
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                  />
+                </Button>
+              </Box>
             </Box>
-          </Box>
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Author"
-            name="author"
-            value={form.author}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="ISBN"
-            name="isbn"
-            value={form.isbn}
-            onChange={handleChange}
-            error={!!errors.isbn}
-            helperText={errors.isbn}
-            required
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Publisher"
-            name="publisher"
-            value={form.publisher}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="normal"
-            fullWidth
-            label="Price"
-            name="price"
-            type="number"
-            value={form.price}
-            onChange={handleChange}
-            error={!!errors.price}
-            helperText={errors.price}
-            required
-          />
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
-          <Button onClick={handleClose} size="small">
-            Cancel
-          </Button>
-          <GradientButton onClick={handleSubmit} size="small">
-            {editId ? 'Update' : 'Create'}
-          </GradientButton>
-        </DialogActions>
-      </Dialog>
-      {/* Image Preview Dialog */}
-      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md">
-        <DialogTitle>Cover Preview</DialogTitle>
-        <DialogContent dividers>
-          {previewSrc && (
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <img src={previewSrc} alt="cover" style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain' }} />
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPreviewOpen(false)}>Close</Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Author"
+              name="author"
+              value={form.author}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="normal"
+              fullWidth
+              label="ISBN"
+              name="isbn"
+              value={form.isbn}
+              onChange={handleChange}
+              error={!!errors.isbn}
+              helperText={errors.isbn}
+              required
+            />
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Publisher"
+              name="publisher"
+              value={form.publisher}
+              onChange={handleChange}
+            />
+            <TextField
+              margin="normal"
+              fullWidth
+              label="Price"
+              name="price"
+              type="number"
+              value={form.price}
+              onChange={handleChange}
+              error={!!errors.price}
+              helperText={errors.price}
+              required
+            />
+          </DialogContent>
+          <DialogActions sx={{ justifyContent: 'flex-end', gap: 1, p: 2 }}>
+            <Button onClick={handleClose} size="small">
+              Cancel
+            </Button>
+            <GradientButton onClick={handleSubmit} size="small">
+              {editId ? 'Update' : 'Create'}
+            </GradientButton>
+          </DialogActions>
+        </Dialog>
+        {/* Image Preview Dialog */}
+        <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md">
+          <DialogTitle>Cover Preview</DialogTitle>
+          <DialogContent dividers>
+            {previewSrc && (
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <img src={previewSrc} alt="cover" style={{ maxWidth: '90vw', maxHeight: '80vh', objectFit: 'contain' }} />
+              </Box>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setPreviewOpen(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </BackgroundFX>
   );
 };

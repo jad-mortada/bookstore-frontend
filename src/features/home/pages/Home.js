@@ -49,97 +49,97 @@ const Home = () => {
   });
 
   return (
-  <BackgroundFX>
-    <Box
-      sx={{
-        minHeight: '100vh',
-        bgcolor: 'transparent',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        pb: 0,
-      }}
-    >
-    <GlassCard elevation={8} sx={{ borderRadius: 6, maxWidth: 1200, mx: 'auto', mt: { xs: 3, sm: 5 }, px: { xs: 1.5, sm: 3, md: 5 }, py: { xs: 3, md: 3.5 }, width: '100%', border: '1px solid rgba(15,23,42,0.08)' }}>
-      <SectionHeader
-        title="Bookstore Management"
-        subtitle="Effortlessly manage schools, classes, books, yearly lists, drafts, and customer orders."
-      />
-      <CardContent>
-        {/* Operations section */}
-        <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1, ml: 0.5 }}>Operations</Typography>
-        <Grid container spacing={2.5} sx={{ mt: 0.5, mb: 2 }}>
-          {operationLinks.map(link => (
-            <Grid key={link.to} item xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
-              <GlassCard elevation={3} sx={{ borderRadius: 4, width: '100%', transition: 'transform 0.18s, box-shadow 0.18s', '&:hover': { transform: 'translateY(-6px)', boxShadow: 10 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 150, border: '1px solid rgba(15,23,42,0.08)' }}>
-                <CardActionArea
-                  component={Link}
-                  to={link.to}
-                  sx={{ height: '100%', borderRadius: 4 }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      py: 3,
-                    }}
-                  >
-                    {link.badge ? (
-                      <Badge badgeContent={link.badge} color="error" overlap="circular">
+    <BackgroundFX>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          bgcolor: 'transparent',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          pb: 0,
+        }}
+      >
+        <GlassCard elevation={8} sx={{ borderRadius: 6, maxWidth: 1200, mx: 'auto', mt: { xs: 3, sm: 5 }, px: { xs: 1.5, sm: 3, md: 5 }, py: { xs: 3, md: 3.5 }, width: '100%', border: '1px solid rgba(15,23,42,0.08)' }}>
+          <SectionHeader
+            title="Bookstore Management"
+            subtitle="Effortlessly manage schools, classes, books, yearly lists, drafts, and customer orders."
+          />
+          <CardContent>
+            {/* Operations section */}
+            <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1, ml: 0.5 }}>Operations</Typography>
+            <Grid container spacing={2.5} sx={{ mt: 0.5, mb: 2 }}>
+              {operationLinks.map(link => (
+                <Grid key={link.to} item xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
+                  <GlassCard elevation={3} sx={{ borderRadius: 4, width: '100%', transition: 'transform 0.18s, box-shadow 0.18s', '&:hover': { transform: 'translateY(-6px)', boxShadow: 10 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 150, border: '1px solid rgba(15,23,42,0.08)' }}>
+                    <CardActionArea
+                      component={Link}
+                      to={link.to}
+                      sx={{ height: '100%', borderRadius: 4 }}
+                    >
+                      <CardContent
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          py: 3,
+                        }}
+                      >
+                        {link.badge ? (
+                          <Badge badgeContent={link.badge} color="error" overlap="circular">
+                            {link.icon}
+                          </Badge>
+                        ) : (
+                          link.icon
+                        )}
+                        <Typography variant="h6" sx={{ mt: 2, fontWeight: 700, color: 'primary.dark', textAlign: 'center' }}>
+                          {link.label}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </GlassCard>
+                </Grid>
+              ))}
+            </Grid>
+            <Divider sx={{ my: 1 }} />
+            {/* Management section */}
+            <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1, ml: 0.5 }}>Management</Typography>
+            <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
+              {managementLinks.map(link => (
+                <Grid key={link.to} item xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
+                  <GlassCard elevation={3} sx={{ borderRadius: 4, width: '100%', transition: 'transform 0.18s, box-shadow 0.18s', '&:hover': { transform: 'translateY(-6px)', boxShadow: 10 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 150, border: '1px solid rgba(15,23,42,0.08)' }}>
+                    <CardActionArea
+                      component={Link}
+                      to={link.to}
+                      sx={{ height: '100%', borderRadius: 4 }}
+                    >
+                      <CardContent
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          py: 3,
+                        }}
+                      >
                         {link.icon}
-                      </Badge>
-                    ) : (
-                      link.icon
-                    )}
-                    <Typography variant="h6" sx={{ mt: 2, fontWeight: 700, color: 'primary.dark', textAlign: 'center' }}>
-                      {link.label}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </GlassCard>
+                        <Typography variant="h6" sx={{ mt: 2, fontWeight: 700, color: 'primary.dark', textAlign: 'center' }}>
+                          {link.label}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </GlassCard>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-        <Divider sx={{ my: 1 }} />
-        {/* Management section */}
-        <Typography variant="overline" sx={{ color: 'text.secondary', letterSpacing: 1, ml: 0.5 }}>Management</Typography>
-        <Grid container spacing={2.5} sx={{ mt: 0.5 }}>
-          {managementLinks.map(link => (
-            <Grid key={link.to} item xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
-              <GlassCard elevation={3} sx={{ borderRadius: 4, width: '100%', transition: 'transform 0.18s, box-shadow 0.18s', '&:hover': { transform: 'translateY(-6px)', boxShadow: 10 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 150, border: '1px solid rgba(15,23,42,0.08)' }}>
-                <CardActionArea
-                  component={Link}
-                  to={link.to}
-                  sx={{ height: '100%', borderRadius: 4 }}
-                >
-                  <CardContent
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      py: 3,
-                    }}
-                  >
-                    {link.icon}
-                    <Typography variant="h6" sx={{ mt: 2, fontWeight: 700, color: 'primary.dark', textAlign: 'center' }}>
-                      {link.label}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </GlassCard>
-            </Grid>
-          ))}
-        </Grid>
-      </CardContent>
-    </GlassCard>
-    {/* Footer */}
-    <AppFooter />
-  </Box>
-  </BackgroundFX>
+          </CardContent>
+        </GlassCard>
+        {/* Footer */}
+        <AppFooter />
+      </Box>
+    </BackgroundFX>
   );
 };
 

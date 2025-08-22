@@ -100,12 +100,12 @@ const tempOrderService = {
   removeItem,
   cancel,
   submit,
-  
+
   // Admin functions
   listSubmitted,
   approve,
   getById,
-  
+
   // User functions
   listMyDrafts,
 };

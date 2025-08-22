@@ -80,7 +80,7 @@ export default function AdminsPage() {
       newErrors.password = 'Password must be at least 6 characters';
     }
 
-   
+
     const emailLower = String(form.email || '').toLowerCase();
     const duplicate = admins.some(a => String(a.email || '').toLowerCase() === emailLower && String(a.id) !== String(editId || ''));
     if (emailLower && duplicate) newErrors.email = 'Email already exists';
@@ -252,7 +252,7 @@ export default function AdminsPage() {
             <GradientButton onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</GradientButton>
           </DialogActions>
         </Dialog>
-        
+
       </Box>
     </BackgroundFX>
   );

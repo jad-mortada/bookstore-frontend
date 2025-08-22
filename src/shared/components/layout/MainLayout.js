@@ -191,7 +191,7 @@ export default function MainLayout({ children }) {
                 const isAdmin = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_SUPER_ADMIN');
                 const isUser = user?.roles?.includes('ROLE_USER');
                 if (link.label === 'Home') return true;
-                if (['Schools','Classes','Books','Yearly Lists','List-Books Link','Customer Orders','Draft Approvals'].includes(link.label)) {
+                if (['Schools', 'Classes', 'Books', 'Yearly Lists', 'List-Books Link', 'Customer Orders', 'Draft Approvals'].includes(link.label)) {
                   return isAdmin;
                 }
                 if (link.label === 'My Orders') {
@@ -239,7 +239,7 @@ export default function MainLayout({ children }) {
                 const isAdmin = user?.roles?.includes('ROLE_ADMIN') || user?.roles?.includes('ROLE_SUPER_ADMIN');
                 const isUser = user?.roles?.includes('ROLE_USER');
                 if (link.label === 'Home') return true;
-                if (['Schools','Classes','Books','Yearly Lists','List-Books Link','Customer Orders','Draft Approvals'].includes(link.label)) {
+                if (['Schools', 'Classes', 'Books', 'Yearly Lists', 'List-Books Link', 'Customer Orders', 'Draft Approvals'].includes(link.label)) {
                   return isAdmin;
                 }
                 if (link.label === 'My Orders') {
@@ -284,27 +284,27 @@ export default function MainLayout({ children }) {
         </Drawer>
       ))}
       <BackgroundFX>
-      <Box component="main" sx={{
-        flexGrow: 1,
-        pr: { xs: '0.5vw', lg: '0.4vw' },
-        pt: { xs: '2vh', lg: '2vh' },
-        pb: { xs: '2vh', lg: '2vh' },
-        pl: 0,
-        // Reduce the gap by contentOffset on lg+
-        ml: {
-          xs: 0,
-          lg: mobileOpen
-            ? `calc(${drawerWidth} - 17vw)`         
-            : `calc(${miniDrawerWidth} - 3vw)`     
-        },
-        width: {
-          xs: '100%',
-          lg: mobileOpen
-            ? `calc(100% - calc(${drawerWidth} - 17vw))`
-            : `calc(100% - calc(${miniDrawerWidth} - 1vw))`
-        },
-        mt: '8vh'
-}}>
+        <Box component="main" sx={{
+          flexGrow: 1,
+          pr: { xs: '0.5vw', lg: '0.4vw' },
+          pt: { xs: '2vh', lg: '2vh' },
+          pb: { xs: '2vh', lg: '2vh' },
+          pl: 0,
+          // Reduce the gap by contentOffset on lg+
+          ml: {
+            xs: 0,
+            lg: mobileOpen
+              ? `calc(${drawerWidth} - 17vw)`
+              : `calc(${miniDrawerWidth} - 3vw)`
+          },
+          width: {
+            xs: '100%',
+            lg: mobileOpen
+              ? `calc(100% - calc(${drawerWidth} - 17vw))`
+              : `calc(100% - calc(${miniDrawerWidth} - 1vw))`
+          },
+          mt: '8vh'
+        }}>
           {children ? children : <Outlet />}
         </Box>
       </BackgroundFX>

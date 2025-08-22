@@ -26,7 +26,7 @@ const getBooks = () => axiosInstance.get(API);
  * @returns {Promise<import('axios').AxiosResponse>} Response containing matching books
  * @throws {Error} If the request fails or the query is invalid
  */
-const searchBooks = (query) => 
+const searchBooks = (query) =>
   axiosInstance.get(`${API}?query=${encodeURIComponent(query)}`);
 
 /**
@@ -87,10 +87,10 @@ const deleteBook = (id) => axiosInstance.delete(`${API}/${id}`);
 const uploadBookImage = (id, file, options = {}) => {
   const formData = new FormData();
   const fieldName = options.fieldName || 'file';
-  
+
   // Append the file to the form data
   formData.append(fieldName, file);
-  
+
   // Let Axios automatically set the correct Content-Type with boundary
   return axiosInstance.post(`${API}/${id}/image`, formData, {
     headers: {
@@ -106,19 +106,19 @@ const uploadBookImage = (id, file, options = {}) => {
 const bookService = {
   /** @see getBooks */
   getBooks,
-  
+
   /** @see searchBooks */
   searchBooks,
-  
+
   /** @see createBook */
   createBook,
-  
+
   /** @see updateBook */
   updateBook,
-  
+
   /** @see deleteBook */
   deleteBook,
-  
+
   /** @see uploadBookImage */
   uploadBookImage
 };

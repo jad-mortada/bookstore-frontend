@@ -62,18 +62,18 @@ const deleteAdmin = (id) => axiosInstance.delete(`${API}/${id}`);
  * Service object containing all admin-related API methods.
  * @namespace adminService
  */
-const adminService = { 
+const adminService = {
   /** @see getAdmins */
-  getAdmins, 
-  
+  getAdmins,
+
   /** @see createAdmin */
-  createAdmin, 
-  
+  createAdmin,
+
   /** @see updateAdmin */
-  updateAdmin, 
-  
+  updateAdmin,
+
   /** @see deleteAdmin */
-  deleteAdmin 
+  deleteAdmin
 };
 
 export default adminService;

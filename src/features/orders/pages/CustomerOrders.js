@@ -17,7 +17,7 @@ const CustomerOrders = () => {
       const datePart = String(iso).split('T')[0];
       const [y, m, d] = datePart.split('-');
       if (y && m && d) return `${d}/${m}/${y}`;
-    } catch (_) {}
+    } catch (_) { }
     return '';
   }, []);
   const [orders, setOrders] = useState([]);
@@ -82,7 +82,7 @@ const CustomerOrders = () => {
           return img ? { ...it, imageUrl: img } : it;
         });
         setDetailOrder(prev => prev ? { ...prev, orderItems: items } : prev);
-      } catch (_) {}
+      } catch (_) { }
     };
     enrich();
   }, [detailOrder]);
@@ -212,14 +212,14 @@ const CustomerOrders = () => {
               <Box>
                 {/* Header Chips */}
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
-                  <Chip 
-                    size="small" 
+                  <Chip
+                    size="small"
                     color={(detailOrder.status || 'APPROVED') === 'APPROVED' ? 'success' : 'default'}
                     label={`Status: ${detailOrder.status || 'APPROVED'}`}
                   />
-                  <Chip 
-                    size="small" 
-                    variant="outlined" 
+                  <Chip
+                    size="small"
+                    variant="outlined"
                     label={`Order Date: ${fmtDate(detailOrder.createdAtRaw || detailOrder.orderDate || detailOrder.createdAt || '')}`}
                   />
                   {detailOrder.customer && (

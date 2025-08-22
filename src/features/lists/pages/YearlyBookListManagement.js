@@ -119,7 +119,7 @@ const YearlyBookListManagement = () => {
         setSnackbar({ open: true, message: 'List created!', severity: 'success' });
       }
       handleClose();
-      try { await fetchLists(); } catch {}
+      try { await fetchLists(); } catch { }
     } catch (error) {
       const status = error?.response?.status;
       const serverMsg = typeof error?.response?.data === 'string' ? error.response.data : (error?.message || '');
@@ -186,7 +186,7 @@ const YearlyBookListManagement = () => {
             const match = byId.get(String(lb.bookId));
             return match ? { ...lb, imageUrl: match.imageUrl } : lb;
           });
-        } catch {}
+        } catch { }
       }
       setViewBooks(items);
     } catch {

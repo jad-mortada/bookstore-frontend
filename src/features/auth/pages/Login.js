@@ -11,7 +11,7 @@ import { AuthContext } from '../../../shared/contexts/AuthContext';
 import { useLoading } from '../../../shared/contexts/LoadingContext';
 import axiosInstance from '../../../api/axiosInstance';
 // password strength meter intentionally not used on login
- 
+
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -193,6 +193,6 @@ const Login = () => {
     </BackgroundFX>
   );
 }
-;
+  ;
 
 export default Login;
