@@ -72,12 +72,23 @@ const Login = () => {
           display: { xs: 'none', md: 'flex' },
           alignItems: 'center',
           justifyContent: 'center',
-          p: 6,
+          p: { xs: 3, md: 6 },
           color: (theme) => theme.palette.text.primary
         }}>
-          <Box sx={{ maxWidth: 520 }}>
-            <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, lineHeight: 1.1, color: 'text.primary' }}>Welcome to Bookstore</Typography>
-            <Typography variant="h6" sx={{ opacity: 0.95, mb: 3, color: 'text.secondary' }}>
+          <Box sx={{ maxWidth: { xs: '90vw', md: 520 } }}>
+            <Typography variant="h3" sx={{ 
+              fontWeight: 800, 
+              mb: 2, 
+              lineHeight: 1.1, 
+              color: 'text.primary',
+              fontSize: { xs: '2rem', md: '2.875rem' } // Responsive font size
+            }}>Welcome to Bookstore</Typography>
+            <Typography variant="h6" sx={{ 
+              opacity: 0.95, 
+              mb: 3, 
+              color: 'text.secondary',
+              fontSize: { xs: '1rem', md: '1.25rem' } // Responsive font size
+            }}>
               Your one place for official class book lists. Sign in to manage drafts, track approvals, and view your order history.
             </Typography>
             <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
@@ -90,18 +101,28 @@ const Login = () => {
 
         {/* Form panel */}
         <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: { xs: 2, md: 6 } }}>
-          <GlassCard elevation={8} sx={{ borderRadius: 4, width: '100%', maxWidth: 460, p: { xs: 2, md: 4 } }}>
+          <GlassCard elevation={8} sx={{ borderRadius: 4, width: '100%', maxWidth: { xs: '95vw', md: 460 }, p: { xs: 2, md: 4 } }}>
             <CardHeader
               avatar={<Avatar sx={{ bgcolor: 'primary.main' }}><LockOutlinedIcon /></Avatar>}
               title={
-                <Typography component="h1" variant="h4" sx={{ fontWeight: 800, letterSpacing: 0.2, color: 'text.primary' }}>
+                <Typography component="h1" variant="h4" sx={{ 
+                  fontWeight: 800, 
+                  letterSpacing: 0.2, 
+                  color: 'text.primary',
+                  fontSize: { xs: '1.5rem', md: '1.75rem' } // Responsive font size
+                }}>
                   Sign in to your account
                 </Typography>
               }
               sx={{ textAlign: 'center', pb: 0 }}
             />
             <CardContent>
-              <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ 
+                  mt: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: { xs: 3, md: 2 } // Larger gap on mobile for better touch targets
+                }}>
                 {error && <Alert severity="error">{error}</Alert>}
                 <TextField
                   label="Email address"
@@ -117,7 +138,7 @@ const Login = () => {
                     '& .MuiFilledInput-root': (theme) => ({
                       backgroundColor: 'rgba(15, 23, 42, 0.035)',
                       borderRadius: 2,
-                      backdropFilter: 'blur(6px)',
+                      backdropFilter: 'blur(0.375rem)',
                     }),
                     '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { borderBottom: 'none' },
                     '& .MuiInputLabel-root': (theme) => ({ color: theme.palette.text.secondary }),
@@ -151,7 +172,7 @@ const Login = () => {
                     '& .MuiFilledInput-root': {
                       backgroundColor: 'rgba(15, 23, 42, 0.035)',
                       borderRadius: 2,
-                      backdropFilter: 'blur(6px)',
+                      backdropFilter: 'blur(0.375rem)',
                     },
                     '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { borderBottom: 'none' },
                     '& .MuiInputLabel-root': (theme) => ({ color: theme.palette.text.secondary }),
@@ -174,15 +195,19 @@ const Login = () => {
                   type="submit"
                   fullWidth
                   size="large"
+                  sx={{ 
+                    minHeight: { xs: '3rem', md: 'auto' }, // Minimum touch target size for mobile
+                    fontSize: { xs: '1rem', md: 'inherit' } // Ensure readable text on mobile
+                  }}
                 >
                   Sign In
                 </GradientButton>
               </Box>
-              <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
+              <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary', fontSize: '0.875rem' }}>
                 By continuing you agree to our Terms and Privacy Policy.
               </Typography>
             </CardContent>
-            <Box sx={{ mt: 1, textAlign: 'center', pb: 1 }}>
+            <Box sx={{ mt: 1, textAlign: 'center', pb: 0.5 }}>
               <GradientButton size="small" variant="text" onClick={() => navigate('/register')}>
                 Don't have an account? Sign up
               </GradientButton>

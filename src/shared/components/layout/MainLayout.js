@@ -17,9 +17,10 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import profileService from '../../../api/profile.api';
 
-const drawerWidth = '19.5vw';
-// Mini (closed) drawer width on lg+; keeps icons visible (viewport units only)
-const miniDrawerWidth = '5vw';
+// Using viewport width units for better responsiveness
+const drawerWidth = { lg: '14rem', xl: '16rem' }; // Reduced from 17.5rem/20rem
+// Mini (closed) drawer width on lg+ using rem
+const miniDrawerWidth = '4rem'; // Reduced from 5rem
 
 const navLinks = [
   { label: 'Home', to: '/', icon: <Home /> },
@@ -101,48 +102,108 @@ export default function MainLayout({ children }) {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', background: theme.palette.background.default }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, background: theme.palette.primary.main, color: theme.palette.primary.contrastText }}>
+      <AppBar 
+        position="fixed" 
+        elevation={0}
+        sx={{ 
+          zIndex: theme.zIndex.drawer + 1, 
+          background: 'rgba(255, 255, 255, 0.8)', 
+          backdropFilter: 'blur(0.5rem)',
+          color: theme.palette.text.primary,
+          borderBottom: `0.0625rem solid ${theme.palette.divider}`,
+          boxShadow: '0 0.0625rem 0.1875rem rgba(0,0,0,0.05)'
+        }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
             edge="start"
             onClick={() => setMobileOpen(prev => !prev)}
-            sx={{ mr: '2vw' }}
+            sx={{ mr: { xs: 2, sm: 3 } }}
             aria-label="open navigation drawer"
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'inherit' }}>
-            Bookstore Management
+          <Typography 
+            variant="h6" 
+            noWrap 
+            component="div" 
+            sx={{ 
+              flexGrow: 1, 
+              color: 'inherit',
+              fontWeight: 700,
+              letterSpacing: '0.03125rem',
+              background: theme.palette.primary.main,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              textFillColor: 'transparent',
+              backgroundImage: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+              fontSize: { xs: '1.1rem', sm: '1.25rem' },
+              mr: 1
+            }}
+          >
+            Bookstore
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <IconButton onClick={e => setAvatarMenuAnchor(e.currentTarget)} size="small">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1.5 }, mr: { xs: 0.5, sm: 2 } }}>
+            {user?.roles?.includes('ROLE_SUPER_ADMIN') && (
+              <Box>
+                <Box 
+                  onClick={(e) => setAdminMenuAnchor(e.currentTarget)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    px: { xs: 1, sm: 1.5 },
+                    py: { xs: 0.5, sm: 0.75 },
+                    borderRadius: 2,
+                    background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main} 20%, ${theme.palette.success.main} 100%)`,
+                    color: (theme) => theme.palette.getContrastText(theme.palette.primary.main),
+                    fontWeight: 700,
+                    fontSize: { xs: '0.6rem', sm: '0.7rem', md: '0.8rem' },
+                    letterSpacing: { xs: '0.05em', sm: '0.06em' },
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    '&:hover': {
+                      opacity: 0.9,
+                      transform: 'translateY(-0.0625rem)'
+                    },
+                    transition: 'all 0.2s ease-in-out'
+                  }}
+                >
+                  ADMIN
+                </Box>
+                <Menu
+                  anchorEl={adminMenuAnchor}
+                  open={Boolean(adminMenuAnchor)}
+                  onClose={() => setAdminMenuAnchor(null)}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <MenuItem onClick={() => { setAdminMenuAnchor(null); navigate('/admins'); }}>Manage Admins</MenuItem>
+                </Menu>
+              </Box>
+            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              <IconButton 
+                onClick={e => setAvatarMenuAnchor(e.currentTarget)} 
+                size="small"
+                sx={{ p: 0.5 }}
+              >
                 <Avatar
-                  sx={{ bgcolor: theme.palette.primary.light, width: { xs: '8vw', md: '2.8vw' }, height: { xs: '8vw', md: '2.8vw' }, fontWeight: 700, fontSize: { xs: '4vw', md: '1.5vw' }, cursor: 'pointer' }}
+                  sx={{ 
+                    bgcolor: theme.palette.primary.light, 
+                    width: { xs: 32, sm: 40, md: 48 }, 
+                    height: { xs: 32, sm: 40, md: 48 }, 
+                    fontWeight: 600, 
+                    fontSize: { xs: '1rem', sm: '1.2rem', md: '1.4rem' },
+                    border: `0.125rem solid ${theme.palette.background.paper}`,
+                    boxShadow: 1
+                  }}
                   src={avatarUrl || undefined}
                 >
                   {!avatarUrl && (user?.firstName ? user.firstName.charAt(0) : user?.email?.charAt(0)?.toUpperCase())}
                 </Avatar>
               </IconButton>
-              {user?.roles?.includes('ROLE_SUPER_ADMIN') && (
-                <IconButton size="small" sx={{ p: 0 }} onClick={(e) => setAdminMenuAnchor(e.currentTarget)}>
-                  <Box sx={{
-                    px: '1.2vw',
-                    py: '0.5vh',
-                    borderRadius: '0.9vw',
-                    background: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main} 20%, ${theme.palette.success.main} 100%)`,
-                    color: (theme) => theme.palette.getContrastText(theme.palette.primary.main),
-                    fontWeight: 700,
-                    fontSize: { xs: '2.8vw', md: '0.9vw' },
-                    letterSpacing: { xs: '0.2vw', md: '0.1vw' },
-                    boxShadow: 1,
-                    ml: { xs: '1vw', md: '0.5vw' }
-                  }}>
-                    SUPER ADMIN
-                  </Box>
-                </IconButton>
-              )}
             </Box>
             <Menu
               anchorEl={avatarMenuAnchor}
@@ -150,24 +211,47 @@ export default function MainLayout({ children }) {
               onClose={() => setAvatarMenuAnchor(null)}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              PaperProps={{
+                sx: {
+                  mt: 1,
+                  minWidth: '11.25rem',
+                  boxShadow: '0 0.25rem 1.25rem rgba(0,0,0,0.1)',
+                  '& .MuiMenuItem-root': {
+                    fontSize: '0.9rem',
+                    py: 1.5,
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                    }
+                  }
+                }
+              }}
             >
-              <MenuItem onClick={() => { setAvatarMenuAnchor(null); navigate('/profile'); }}>Profile</MenuItem>
-              <MenuItem onClick={() => { setAvatarMenuAnchor(null); handleLogout(); }}>Logout</MenuItem>
+              <MenuItem onClick={() => { setAvatarMenuAnchor(null); navigate('/profile'); }}>
+                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Avatar 
+                    src={avatarUrl || undefined}
+                    sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.light }}
+                  >
+                    {!avatarUrl && (user?.firstName ? user.firstName.charAt(0) : user?.email?.charAt(0)?.toUpperCase())}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ lineHeight: 1.2, fontWeight: 600 }}>
+                      {user?.firstName || 'Profile'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      View profile
+                    </Typography>
+                  </Box>
+                </Box>
+              </MenuItem>
+              <Divider />
+              <MenuItem onClick={() => { setAvatarMenuAnchor(null); handleLogout(); }}>
+                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: theme.palette.error.main }}>
+                  <Logout fontSize="small" />
+                  Logout
+                </Box>
+              </MenuItem>
             </Menu>
-            <Menu
-              anchorEl={adminMenuAnchor}
-              open={Boolean(adminMenuAnchor)}
-              onClose={() => setAdminMenuAnchor(null)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-              <MenuItem onClick={() => { setAdminMenuAnchor(null); navigate('/admins'); }}>Manage Admins</MenuItem>
-            </Menu>
-            <Tooltip title="Logout">
-              <IconButton color="inherit" onClick={handleLogout}>
-                <Logout />
-              </IconButton>
-            </Tooltip>
           </Box>
         </Toolbar>
       </AppBar>
@@ -179,7 +263,7 @@ export default function MainLayout({ children }) {
           onOpen={() => setMobileOpen(true)}
           sx={{
             [`& .MuiDrawer-paper`]: {
-              width: '56vw', // make it a little wider on phones; uses viewport units
+              width: 300, // fixed width for mobile drawer
             }
           }}
         >
@@ -204,13 +288,13 @@ export default function MainLayout({ children }) {
               })
               .map(link => (
                 <ListItem key={link.label} disablePadding>
-                  <ListItemButton component={Link} to={link.to} selected={location.pathname === link.to} onClick={() => setMobileOpen(false)}>
-                    <ListItemIcon sx={{ color: 'inherit', mr: '2vw' }}>{link.icon}</ListItemIcon>
-                    <ListItemText
-                      primary={link.label}
-                      slotProps={{ primary: { sx: { color: 'inherit' } } }}
-                    />
-                  </ListItemButton>
+                    <ListItemButton component={Link} to={link.to} selected={location.pathname === link.to} onClick={() => setMobileOpen(false)}>
+                      <ListItemIcon sx={{ color: 'inherit', mr: { xs: 2, sm: 2.5 } }}>{link.icon}</ListItemIcon>
+                      <ListItemText
+                        primary={link.label}
+                        slotProps={{ primary: { sx: { color: 'inherit' } } }}
+                      />
+                    </ListItemButton>
                 </ListItem>
               ))}
           </List>
@@ -220,10 +304,10 @@ export default function MainLayout({ children }) {
           variant="persistent"
           open={isAtLeastLg ? true : mobileOpen}
           sx={{
-            width: { lg: mobileOpen ? drawerWidth : miniDrawerWidth },
+            width: { lg: mobileOpen ? drawerWidth.lg : miniDrawerWidth, xl: mobileOpen ? drawerWidth.xl : miniDrawerWidth },
             flexShrink: 0,
             [`& .MuiDrawer-paper`]: {
-              width: mobileOpen ? drawerWidth : miniDrawerWidth,
+              width: { lg: mobileOpen ? drawerWidth.lg : miniDrawerWidth, xl: mobileOpen ? drawerWidth.xl : miniDrawerWidth },
               boxSizing: 'border-box',
               background: theme.palette.background.paper,
               color: theme.palette.text.primary,
@@ -259,15 +343,15 @@ export default function MainLayout({ children }) {
                       selected={location.pathname === link.to}
                       sx={{
                         justifyContent: mobileOpen ? 'initial' : 'center',
-                        px: mobileOpen ? '1.2vw' : '0.6vw',
+                        px: mobileOpen ? { lg: '1.25rem', xl: '1.5625rem' } : '0.9375rem',
                       }}
                     >
                       <ListItemIcon sx={{
                         color: 'inherit',
                         minWidth: 0,
-                        mr: mobileOpen ? '1.2vw' : 0,
+                        mr: mobileOpen ? { lg: 2, xl: 2.5 } : 0,
                         justifyContent: 'center',
-                        '& .MuiSvgIcon-root': { fontSize: '2vw' }
+                        '& .MuiSvgIcon-root': { fontSize: { lg: '1.5rem', xl: '1.6rem' } }
                       }}>
                         {link.icon}
                       </ListItemIcon>
@@ -286,24 +370,24 @@ export default function MainLayout({ children }) {
       <BackgroundFX>
         <Box component="main" sx={{
           flexGrow: 1,
-          pr: { xs: '0.5vw', lg: '0.4vw' },
-          pt: { xs: '2vh', lg: '2vh' },
-          pb: { xs: '2vh', lg: '2vh' },
-          pl: 0,
-          // Reduce the gap by contentOffset on lg+
-          ml: {
+          p: { xs: '0.5rem', sm: '1rem' }, // Using rem for padding
+          // Responsive margins and widths
+          // Remove left margin completely for desktop view
+          ml: 0,
+          // Adjust padding instead of margin for desktop view
+          pl: {
             xs: 0,
-            lg: mobileOpen
-              ? `calc(${drawerWidth} - 17vw)`
-              : `calc(${miniDrawerWidth} - 3vw)`
+            lg: mobileOpen ? 'calc(1rem + 1vw)' : 'calc(0.5rem + 0.5vw)',
+            xl: mobileOpen ? 'calc(1rem + 1vw)' : 'calc(0.5rem + 0.5vw)'
           },
-          width: {
-            xs: '100%',
-            lg: mobileOpen
-              ? `calc(100% - calc(${drawerWidth} - 17vw))`
-              : `calc(100% - calc(${miniDrawerWidth} - 1vw))`
-          },
-          mt: '8vh'
+          width: '100%', // Let the padding handle the spacing
+          mt: '4.375rem', // 3.5rem in rem
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          transition: theme => theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
         }}>
           {children ? children : <Outlet />}
         </Box>

@@ -90,7 +90,7 @@ const ListBooksManagement = () => {
     return (
       <BackgroundFX>
         <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', mx: 0 }}>
-          <GlassCard sx={{ p: { xs: 2, md: 3 }, border: '1px solid rgba(15,23,42,0.08)' }}>
+          <GlassCard sx={{ p: { xs: 2, md: 3 }, border: '0.0625rem solid rgba(15,23,42,0.08)' }}>
             <SectionHeader title="Link Books to Yearly List" subtitle="Associate books with a specific class/year list." />
             <Typography variant="body1" color="text.secondary">
               No lists, books, classes, or schools available yet. Please create the required data first.

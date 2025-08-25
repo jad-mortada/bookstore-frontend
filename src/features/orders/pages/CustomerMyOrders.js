@@ -91,7 +91,7 @@ const OrderCard = ({ order, onPreview }) => {
       sx={{
         borderRadius: 3,
         mb: 2,
-        borderLeft: "4px solid",
+        borderLeft: "0.25rem solid",
         borderColor:
           status === "APPROVED"
             ? "success.main"
@@ -1116,10 +1116,10 @@ const CustomerMyOrders = () => {
                                   size="small"
                                   disabled={!canEdit}
                                   sx={{
-                                    width: 72,
+                                    width: '4.5rem',
                                     "& .MuiInputBase-input": {
                                       textAlign: "center",
-                                      padding: "8px 0",
+                                      padding: '0.5rem 0',
                                     },
                                   }}
                                 />
@@ -1144,7 +1144,7 @@ const CustomerMyOrders = () => {
                                       display: "flex",
                                       alignItems: "center",
                                       justifyContent: "center",
-                                      padding: "8px 0",
+                                      padding: '0.5rem 0',
                                     },
                                   }}
                                 >
@@ -1193,7 +1193,7 @@ const CustomerMyOrders = () => {
                               p: 1.25,
                               textAlign: "right",
                               fontWeight: 600,
-                              borderTop: "1px solid",
+                              borderTop: '0.0625rem solid',
                               borderColor: (t) => t.palette.divider,
                             }}
                           >
@@ -1204,7 +1204,7 @@ const CustomerMyOrders = () => {
                               p: 1.25,
                               textAlign: "center",
                               fontWeight: 700,
-                              borderTop: "1px solid",
+                              borderTop: '0.0625rem solid',
                               borderColor: (t) => t.palette.divider,
                             }}
                           >

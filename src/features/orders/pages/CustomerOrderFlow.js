@@ -871,237 +871,28 @@ const CustomerOrderFlow = () => {
                       sortable: false,
                       filterable: false,
                       disableColumnMenu: true,
-                      renderCell: ({ row }) => {
-                        const img = row.imageUrl;
-                        return (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center", // 'flex-start' for top, 'center' for middle
-                              height: "100%",
-                            }}
-                          >
-                            <img
-                              src={resolveImageUrl(img)}
-                              alt={row.bookTitle || row.title || "cover"}
-                              style={{
-                                width: "3vw",
-                                height: "3.7vw", // adjust image size
-                                objectFit: "cover",
-                              }}
-                            />
-                          </Box>
-                        );
-                      },
-                    },
-                    {
-                      field: "__select__",
-                      headerName: "",
-                      flex: 0.32,
-                      sortable: false,
-                      filterable: false,
-                      disableColumnMenu: true,
                       renderCell: (params) => {
-                        const key = getRowKey(params?.row || {});
-                        const checked = selectedIds.includes(key);
-
+                        const value = params.value || 0;
                         return (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center", // vertical center
-                              height: "100%", // match DataGrid row height
-                            }}
-                          >
-                            <Checkbox
-                              checked={checked}
-                              onChange={(e) => {
-                                const next = e.target.checked
-                                  ? [...new Set([...selectedIds, key])]
-                                  : selectedIds.filter((id) => id !== key);
-                                setSelectedIds(next);
-                              }}
-                              size="small"
-                              sx={{ p: 0 }} // remove extra padding
-                            />
-                          </Box>
-                        );
-                      },
-                    },
-                    {
-                      field: "bookTitle",
-                      headerName: "Title",
-                      flex: 2,
-                      headerAlign: "left",
-                      renderCell: (params) => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "100%",
-                          }}
-                        >
-                          {params.value}
-                        </Box>
-                      ),
-                    },
-
-                    {
-                      field: "bookAuthor",
-                      headerName: "Author",
-                      flex: 0.8,
-                      renderCell: (params) => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "100%",
-                          }}
-                        >
-                          {params.value}
-                        </Box>
-                      ),
-                    },
-                    {
-                      field: "quantity",
-                      headerName: "Qty",
-                      flex: 0.9,
-                      sortable: false,
-                      filterable: false,
-                      renderCell: ({ row }) => {
-                        const idx = currentItems.findIndex(
-                          (i) => i.bookId === row.bookId
-                        );
-                        const qty = Number(row.quantity || 1);
-                        const setQty = (n) =>
-                          handleOrderChange(
-                            idx,
-                            "quantity",
-                            Math.max(1, Number(n))
-                          );
-                        return (
-                          <Stack
-                            direction="row"
-                            spacing={1}
-                            alignItems="center"
-                            sx={{ width: "100%", justifyContent: "center" }}
-                          >
-                            <IconButton
-                              size="small"
-                              color="inherit"
-                              aria-label="Decrease quantity"
-                              onClick={() => setQty(qty - 1)}
-                            >
-                              <RemoveRounded fontSize="small" />
-                            </IconButton>
+                          <Box>
                             <TextField
                               type="number"
-                              value={qty}
-                              onChange={(e) => setQty(e.target.value)}
-                              inputProps={{ min: 1 }}
-                              size="small"
-                              sx={{
-                                width: 72,
-                                "& .MuiInputBase-input": {
-                                  textAlign: "center",
-                                  paddingTop: 0.9,
-                                  paddingBottom: 0.9,
-                                  lineHeight: 1.5,
-                                },
-                                "& input[type=number]": {
-                                  MozAppearance: "textfield",
-                                },
-                                "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                                  {
-                                    WebkitAppearance: "none",
-                                    margin: 0,
-                                  },
+                              value={value}
+                              onChange={(e) => {
+                                params.api.setEditCellValue({
+                                  id: params.id,
+                                  field: params.field,
+                                  value: Math.max(1, Number(e.target.value))
+                                });
+                              }}
+                              inputProps={{
+                                min: 1,
+                                style: { width: '8vw', minWidth: '4.375rem' }
                               }}
                             />
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              aria-label="Increase quantity"
-                              onClick={() => setQty(qty + 1)}
-                            >
-                              <AddRounded fontSize="small" />
-                            </IconButton>
-                          </Stack>
+                          </Box>
                         );
-                      },
-                    },
-                    {
-                      field: "conditionType",
-                      headerName: "Condition",
-                      flex: 0.8,
-                      renderCell: ({ row }) => (
-                        <TextField
-                          select
-                          value={row.conditionType}
-                          onChange={(e) =>
-                            handleOrderChange(
-                              currentItems.findIndex(
-                                (i) => i.bookId === row.bookId
-                              ),
-                              "conditionType",
-                              e.target.value
-                            )
-                          }
-                          size="small"
-                          sx={{
-                            width: 110,
-                            "& .MuiSelect-select": {
-                              display: "flex",
-                              alignItems: "center",
-                              paddingTop: 0.9,
-                              paddingBottom: 0.9,
-                              lineHeight: 1.5,
-                            },
-                          }}
-                        >
-                          <MenuItem value="NEW">New</MenuItem>
-                          <MenuItem value="USED">Used</MenuItem>
-                        </TextField>
-                      ),
-                    },
-                    {
-                      field: "unitPrice",
-                      headerName: "Unit Price",
-                      flex: 0.5,
-                      renderCell: (params) => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "100%",
-                            paddingTop: 0.9,
-                            paddingBottom: 0.9,
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {currency(getUnitPrice(params?.row || {}))}
-                        </Box>
-                      ),
-                    },
-
-                    {
-                      field: "subtotal",
-                      headerName: "Subtotal",
-                      flex: 0.8,
-                      renderCell: (params) => (
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "100%",
-                            paddingTop: 0.9,
-                            paddingBottom: 0.9,
-                            lineHeight: 1.5,
-                          }}
-                        >
-                          {currency(getSubtotal(params?.row || {}))}
-                        </Box>
-                      ),
+                      }
                     },
                   ]}
                   hideFooter
@@ -1111,7 +902,7 @@ const CustomerOrderFlow = () => {
                     backgroundColor: theme.palette.background.paper,
                     boxShadow: theme.shadows[1],
                     mt: 2,
-                    border: "1px solid",
+                    border: "0.0625rem solid",
                     borderColor: theme.palette.divider,
                     "& .MuiDataGrid-columnHeaders": {
                       backgroundColor: "rgba(15,23,42,0.035)",
@@ -1207,19 +998,19 @@ const CustomerOrderFlow = () => {
                     color: (t) => t.palette.text.primary,
                     borderRadius: 1,
                     boxShadow: (t) => t.shadows[1],
-                    "& thead": {
-                      bgcolor: "rgba(15,23,42,0.035)",
+                    '& thead': {
+                      bgcolor: 'rgba(15,23,42,0.035)',
                     },
-                    "& th, & td": {
+                    '& th, & td': {
                       py: 1.5,
                       px: 1,
                       lineHeight: 1.6,
                     },
-                    "& tr": {
-                      borderBottom: "1px solid",
+                    '& tr': {
+                      borderBottom: '0.0625rem solid',
                       borderColor: (t) => t.palette.divider,
                     },
-                    "& tbody tr:hover": { bgcolor: "rgba(15,23,42,0.03)" },
+                    '& tbody tr:hover': { bgcolor: 'rgba(15,23,42,0.03)' },
                   }}
                 >
                   <Box component="thead">
@@ -1253,8 +1044,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                           })}
                         >
                           <b>{item.bookTitle}</b>
@@ -1264,8 +1055,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                           })}
                         >
                           {item.bookAuthor}
@@ -1275,8 +1066,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1292,7 +1083,7 @@ const CustomerOrderFlow = () => {
                             }
                             inputProps={{
                               min: 1,
-                              style: { width: "8vw", minWidth: "70px" },
+                              style: { width: "8vw", minWidth: "4.375rem" },
                             }}
                             size="small"
                           />
@@ -1302,8 +1093,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1338,8 +1129,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1350,8 +1141,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1362,8 +1153,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1374,8 +1165,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1386,8 +1177,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1398,8 +1189,8 @@ const CustomerOrderFlow = () => {
                           sx={(theme) => ({
                             p: "0.8vw",
                             borderColor: theme.palette.divider,
-                            borderBottom: "1px solid",
-                            "&:last-child": { borderRight: "1px solid" },
+                            borderBottom: "0.0625rem solid",
+                            "&:last-child": { borderRight: "0.0625rem solid" },
                             textAlign: "center",
                           })}
                         >
@@ -1421,7 +1212,7 @@ const CustomerOrderFlow = () => {
               </Box>
               <Box
                 sx={(theme) => ({
-                  display: "flex",
+                  display: 'flex',
                   justifyContent: "space-between",
                   alignItems: "center",
                   mt: "1.2vw",

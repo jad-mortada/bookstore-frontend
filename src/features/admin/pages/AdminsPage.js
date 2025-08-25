@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import {
-  Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Tooltip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Alert
+  Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, 
+  TextField, IconButton, Tooltip, Table, TableBody, TableCell, TableContainer, 
+  TableHead, TableRow, Alert, useMediaQuery, useTheme, Paper
 } from '@mui/material';
 import { AddRounded, EditRounded, DeleteOutlineRounded } from '@mui/icons-material';
 import adminService from '../../../api/admin.api';
@@ -12,6 +14,8 @@ import GradientButton from '../../../shared/components/ui/GradientButton';
 const emptyAdmin = { firstName: '', lastName: '', email: '', phoneNumber: '', password: '' };
 
 export default function AdminsPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { user } = useContext(AuthContext);
   const [admins, setAdmins] = useState([]);
   const [open, setOpen] = useState(false);
@@ -171,85 +175,269 @@ export default function AdminsPage() {
         <Typography variant="h4" mb={2} sx={{ fontWeight: 800 }}>
           Manage Admins
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' }, 
+          alignItems: { xs: 'stretch', sm: 'center' }, 
+          gap: 2, 
+          mb: 2 
+        }}>
           <Tooltip title="Add a new admin">
-            <span>
-              <GradientButton startIcon={<AddRounded />} onClick={() => handleOpen()} aria-label="Add admin">
+            <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
+              <GradientButton 
+                fullWidth={isMobile}
+                startIcon={<AddRounded />} 
+                onClick={() => handleOpen()} 
+                aria-label="Add admin"
+                sx={{ py: { xs: 1, sm: 0.5 } }}
+              >
                 Add Admin
               </GradientButton>
-            </span>
+            </Box>
           </Tooltip>
-          <TextField
-            size="small"
-            label="Search admins"
-            placeholder="Search by name, email, phone"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ flex: 1, minWidth: 220, maxWidth: 360 }}
-            slotProps={{
-              input: {
-                endAdornment: search ? (
-                  <IconButton size="small" onClick={() => setSearch('')} aria-label="Clear search">
+          <Box sx={{ flex: 1, minWidth: { xs: '100%', sm: 220, md: 360 } }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Search admins"
+              placeholder="Search by name, email, phone"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                endAdornment: search && (
+                  <IconButton 
+                    size="small" 
+                    onClick={() => setSearch('')} 
+                    aria-label="Clear search"
+                    sx={{ mr: -1 }}
+                  >
                     ✕
                   </IconButton>
-                ) : null,
-              },
-            }}
-          />
+                ),
+              }}
+            />
+          </Box>
         </Box>
         {errorMessage && (
           <Alert severity="error" sx={{ mt: 2 }}>{errorMessage}</Alert>
         )}
-        <GlassCard sx={{ mt: 2, p: { xs: 1, md: 2 } }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>First Name</TableCell>
-                  <TableCell>Last Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Phone</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredAdmins.map(a => (
-                  <TableRow key={a.id}>
-                    <TableCell>{a.firstName}</TableCell>
-                    <TableCell>{a.lastName}</TableCell>
-                    <TableCell>{a.email}</TableCell>
-                    <TableCell>{a.phoneNumber}</TableCell>
-                    <TableCell>
-                      <Tooltip title="Edit admin">
-                        <IconButton onClick={() => handleOpen(a, a.id)} aria-label={`Edit admin ${a.firstName} ${a.lastName}`}>
-                          <EditRounded />
+        <GlassCard sx={{ mt: 2, p: { xs: 0, sm: 1, md: 2 }, overflow: 'hidden' }}>
+          {isMobile ? (
+            <Box sx={{ p: 1 }}>
+              {filteredAdmins.map((a) => (
+                <Paper key={a.id} elevation={0} sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'background.paper' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        {a.firstName} {a.lastName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        {a.email}
+                      </Typography>
+                      {a.phoneNumber && (
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                          {a.phoneNumber}
+                        </Typography>
+                      )}
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <Tooltip title="Edit">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpen(a, a.id)}
+                          sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
+                        >
+                          <EditRounded fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Delete admin">
-                        <IconButton color="error" onClick={() => handleDelete(a.id)} aria-label={`Delete admin ${a.firstName} ${a.lastName}`}>
-                          <DeleteOutlineRounded />
+                      <Tooltip title="Delete">
+                        <IconButton 
+                          size="small" 
+                          color="error" 
+                          onClick={() => handleDelete(a.id)}
+                          sx={{ '&:hover': { bgcolor: 'error.light' } }}
+                        >
+                          <DeleteOutlineRounded fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                    </TableCell>
+                    </Box>
+                  </Box>
+                </Paper>
+              ))}
+              {filteredAdmins.length === 0 && (
+                <Box sx={{ p: 3, textAlign: 'center' }}>
+                  <Typography color="text.secondary">No admins found</Typography>
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>First Name</TableCell>
+                    <TableCell>Last Name</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Phone</TableCell>
+                    <TableCell align="right">Actions</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {filteredAdmins.map(a => (
+                    <TableRow key={a.id} hover>
+                      <TableCell>{a.firstName}</TableCell>
+                      <TableCell>{a.lastName}</TableCell>
+                      <TableCell>{a.email}</TableCell>
+                      <TableCell>{a.phoneNumber || '-'}</TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Edit admin">
+                          <IconButton 
+                            size="small" 
+                            onClick={() => handleOpen(a, a.id)}
+                            sx={{ '&:hover': { bgcolor: 'action.selected' } }}
+                          >
+                            <EditRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete admin">
+                          <IconButton 
+                            size="small" 
+                            color="error" 
+                            onClick={() => handleDelete(a.id)}
+                            sx={{ '&:hover': { bgcolor: 'error.light' } }}
+                          >
+                            <DeleteOutlineRounded fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredAdmins.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
+                        <Typography color="text.secondary">No admins found</Typography>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </GlassCard>
 
-        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-          <DialogTitle>{editId ? 'Edit Admin' : 'Add Admin'}</DialogTitle>
-          <DialogContent>
-            <TextField autoFocus margin="dense" label="First Name" name="firstName" value={form.firstName} onChange={handleChange} fullWidth error={!!errors.firstName} helperText={errors.firstName} />
-            <TextField margin="dense" label="Last Name" name="lastName" value={form.lastName} onChange={handleChange} fullWidth error={!!errors.lastName} helperText={errors.lastName} />
-            <TextField margin="dense" label="Email" name="email" value={form.email} onChange={handleChange} fullWidth error={!!errors.email} helperText={errors.email} />
-            <TextField margin="dense" label="Phone Number" name="phoneNumber" value={form.phoneNumber} onChange={handleChange} fullWidth />
-            <TextField margin="dense" label={editId ? 'Password (leave blank to keep)' : 'Password'} name="password" value={form.password} onChange={handleChange} fullWidth type="password" error={!!errors.password} helperText={errors.password} />
+        <Dialog 
+          open={open} 
+          onClose={handleClose} 
+          fullWidth 
+          maxWidth="sm"
+          fullScreen={isMobile}
+        >
+          <DialogTitle sx={{ 
+            bgcolor: 'background.paper',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1,
+            p: { xs: 2, sm: 3 },
+            pb: { xs: 1.5, sm: 2 }
+          }}>
+            <Typography variant="h6" component="div">
+              {editId ? 'Edit Admin' : 'Add Admin'}
+            </Typography>
+          </DialogTitle>
+          <DialogContent sx={{ p: { xs: 2, sm: 3 }, '& .MuiTextField-root': { mb: 2 } }}>
+            <TextField 
+              autoFocus 
+              margin="dense" 
+              label="First Name" 
+              name="firstName" 
+              value={form.firstName} 
+              onChange={handleChange} 
+              fullWidth 
+              error={!!errors.firstName} 
+              helperText={errors.firstName}
+              size={isMobile ? 'medium' : 'small'}
+            />
+            <TextField 
+              margin="dense" 
+              label="Last Name" 
+              name="lastName" 
+              value={form.lastName} 
+              onChange={handleChange} 
+              fullWidth 
+              error={!!errors.lastName} 
+              helperText={errors.lastName}
+              size={isMobile ? 'medium' : 'small'}
+            />
+            <TextField 
+              margin="dense" 
+              label="Email" 
+              name="email" 
+              value={form.email} 
+              onChange={handleChange} 
+              fullWidth 
+              error={!!errors.email} 
+              helperText={errors.email}
+              size={isMobile ? 'medium' : 'small'}
+              inputProps={{
+                inputMode: 'email',
+                autoComplete: 'email'
+              }}
+            />
+            <TextField 
+              margin="dense" 
+              label="Phone Number" 
+              name="phoneNumber" 
+              value={form.phoneNumber} 
+              onChange={handleChange} 
+              fullWidth 
+              size={isMobile ? 'medium' : 'small'}
+              inputProps={{
+                inputMode: 'tel'
+              }}
+            />
+            <TextField 
+              margin="dense" 
+              label={editId ? 'Password (leave blank to keep)' : 'Password'} 
+              name="password" 
+              value={form.password} 
+              onChange={handleChange} 
+              fullWidth 
+              type="password" 
+              error={!!errors.password} 
+              helperText={errors.password || (editId ? 'Leave blank to keep current password' : '')}
+              size={isMobile ? 'medium' : 'small'}
+              inputProps={{
+                autoComplete: 'new-password'
+              }}
+            />
           </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
-            <Button onClick={handleClose}>Cancel</Button>
-            <GradientButton onClick={handleSubmit}>{editId ? 'Update' : 'Create'}</GradientButton>
+          <DialogActions sx={{ 
+            p: { xs: 2, sm: 3 },
+            pt: 0,
+            position: isMobile ? 'sticky' : 'static',
+            bottom: 0,
+            bgcolor: 'background.paper',
+            borderTop: '1px solid',
+            borderColor: 'divider',
+            gap: 1
+          }}>
+            <Button 
+              onClick={handleClose} 
+              size={isMobile ? 'large' : 'medium'}
+              fullWidth={isMobile}
+              variant={isMobile ? 'outlined' : 'text'}
+            >
+              Cancel
+            </Button>
+            <GradientButton 
+              onClick={handleSubmit} 
+              fullWidth={isMobile}
+              size={isMobile ? 'large' : 'medium'}
+            >
+              {editId ? 'Update' : 'Create'}
+            </GradientButton>
           </DialogActions>
         </Dialog>
 

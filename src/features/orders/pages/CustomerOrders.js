@@ -255,7 +255,7 @@ const CustomerOrders = () => {
                           bgcolor: 'rgba(15,23,42,0.035)'
                         },
                         '& th, & td': { p: 1.25 },
-                        '& tr': { borderBottom: '1px solid', borderColor: (t) => t.palette.divider },
+                        '& tr': { borderBottom: '0.0625rem solid', borderColor: (t) => t.palette.divider },
                         '& tbody tr:hover': { bgcolor: 'rgba(15,23,42,0.03)' }
                       }}
                     >
@@ -344,10 +344,10 @@ const CustomerOrders = () => {
                       </Box>
                       <Box component="tfoot">
                         <Box component="tr">
-                          <Box component="td" colSpan={5} sx={{ p: 1.75, textAlign: 'right', fontWeight: 600, borderTop: '1px solid', borderColor: (t) => t.palette.divider }}>
+                          <Box component="td" colSpan={5} sx={{ p: '1.75rem', textAlign: 'right', fontWeight: 600, borderTop: '0.0625rem solid', borderColor: (t) => t.palette.divider }}>
                             Total:
                           </Box>
-                          <Box component="td" sx={{ p: 1.75, textAlign: 'right', fontWeight: 700, fontSize: '1.05em', borderTop: '1px solid', borderColor: (t) => t.palette.divider }}>
+                          <Box component="td" sx={{ p: '1.75rem', textAlign: 'right', fontWeight: 700, fontSize: '1.05em', borderTop: '0.0625rem solid', borderColor: (t) => t.palette.divider }}>
                             ${((detailOrder.orderItems || []).reduce((total, item) => {
                               const basePrice = Number(item.price ?? item.bookPrice ?? 0);
                               const cond = String(item.conditionType ?? item.condition ?? item.bookCondition ?? '').toUpperCase();
