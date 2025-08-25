@@ -47,11 +47,11 @@ const getTheme = () => createTheme({
     warning: { main: '#f59e0b' }, // Amber
     info: { main: '#0ea5e9' }, // Sky blue
     success: { main: '#22c55e' }, // Green
-    background: { 
+    background: {
       default: '#f6f7fb', // Light gray
       paper: '#ffffff' // White
     },
-    text: { 
+    text: {
       primary: '#0f172a', // Dark blue
       secondary: 'rgba(15, 23, 42, 0.68)'
     },
@@ -63,7 +63,7 @@ const getTheme = () => createTheme({
    * @property {Object} shape - Shape properties for components
    * @property {number} shape.borderRadius - Default border radius in pixels
    */
-  shape: { 
+  shape: {
     borderRadius: 12 // Consistent border radius across components
   },
 
@@ -81,59 +81,59 @@ const getTheme = () => createTheme({
   typography: {
     fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif",
     // Heading styles with responsive sizes and weights
-    h1: { 
+    h1: {
       fontSize: '2.875rem', // 46px
-      lineHeight: 1.2, 
-      fontWeight: 800, 
-      letterSpacing: '0.0125em' 
+      lineHeight: 1.2,
+      fontWeight: 800,
+      letterSpacing: '0.0125em'
     },
-    h2: { 
+    h2: {
       fontSize: '2.25rem', // 36px
-      lineHeight: 1.25, 
-      fontWeight: 800, 
-      letterSpacing: '0.0125em' 
+      lineHeight: 1.25,
+      fontWeight: 800,
+      letterSpacing: '0.0125em'
     },
-    h3: { 
+    h3: {
       fontSize: '1.875rem', // 30px
-      lineHeight: 1.28, 
-      fontWeight: 700 
+      lineHeight: 1.28,
+      fontWeight: 700
     },
-    h4: { 
+    h4: {
       fontSize: '1.375rem', // 22px
-      lineHeight: 1.35, 
-      fontWeight: 700 
+      lineHeight: 1.35,
+      fontWeight: 700
     },
-    h5: { 
+    h5: {
       fontSize: '1.125rem', // 18px
-      lineHeight: 1.4, 
-      fontWeight: 600 
+      lineHeight: 1.4,
+      fontWeight: 600
     },
-    h6: { 
+    h6: {
       fontSize: '1rem', // 16px
-      lineHeight: 1.5, 
-      fontWeight: 600 
+      lineHeight: 1.5,
+      fontWeight: 600
     },
     // Body text styles
-    body1: { 
+    body1: {
       fontSize: '1rem', // 16px
-      lineHeight: 1.65 
+      lineHeight: 1.65
     },
-    body2: { 
+    body2: {
       fontSize: '0.915rem', // 14.64px
-      lineHeight: 1.65 
+      lineHeight: 1.65
     },
     // Button text styles
-    button: { 
+    button: {
       textTransform: 'none', // Disable uppercase transformation
-      fontWeight: 700, 
-      letterSpacing: '0.0125em' 
+      fontWeight: 700,
+      letterSpacing: '0.0125em'
     },
     // Subtitle styles
-    subtitle1: { 
-      fontWeight: 600 
+    subtitle1: {
+      fontWeight: 600
     },
-    subtitle2: { 
-      fontWeight: 600 
+    subtitle2: {
+      fontWeight: 600
     },
   },
   /**
@@ -197,7 +197,7 @@ const getTheme = () => createTheme({
      * Typography component defaults
      */
     MuiTypography: {
-      defaultProps: { 
+      defaultProps: {
         color: 'text.primary',
         variantMapping: {
           h1: 'h1',

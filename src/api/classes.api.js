@@ -25,7 +25,7 @@ const getClasses = () => axiosInstance.get(API);
  * @returns {Promise<import('axios').AxiosResponse>} Response containing an array of class objects
  * @throws {Error} If the request fails or the school is not found
  */
-const getClassesBySchool = (schoolId) => 
+const getClassesBySchool = (schoolId) =>
   axiosInstance.get(`${API}/by-school/${schoolId}`);
 
 /**
@@ -67,21 +67,21 @@ const deleteClass = (id) => axiosInstance.delete(`${API}/${id}`);
  * Service object containing all class-related API methods.
  * @namespace classService
  */
-const classService = { 
+const classService = {
   /** @see getClasses */
-  getClasses, 
-  
+  getClasses,
+
   /** @see getClassesBySchool */
-  getClassesBySchool, 
-  
+  getClassesBySchool,
+
   /** @see createClass */
-  createClass, 
-  
+  createClass,
+
   /** @see updateClass */
-  updateClass, 
-  
+  updateClass,
+
   /** @see deleteClass */
-  deleteClass 
+  deleteClass
 };
 
 export default classService;

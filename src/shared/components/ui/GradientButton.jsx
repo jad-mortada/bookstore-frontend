@@ -26,24 +26,24 @@ const GradientButton = ({ children, sx = {}, color = 'primary', variant = 'conta
         textTransform: 'none',
         ...(variant === 'text'
           ? {
-              background: 'transparent',
-              color: 'primary.main',
+            background: 'transparent',
+            color: 'primary.main',
+            boxShadow: 'none',
+            '&:hover': {
+              backgroundColor: 'transparent',
+              color: 'primary.dark',
+              textDecoration: 'underline',
               boxShadow: 'none',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: 'primary.dark',
-                textDecoration: 'underline',
-                boxShadow: 'none',
-              },
-            }
+            },
+          }
           : {
-              backgroundImage: 'linear-gradient(90deg, #7c3aed 0%, #10b981 100%)',
-              boxShadow: '0 10px 24px rgba(124,58,237,0.28)',
-              '&:hover': {
-                backgroundImage: 'linear-gradient(90deg, #6d28d9 0%, #059669 100%)',
-                boxShadow: '0 12px 28px rgba(124,58,237,0.34)',
-              },
-            }),
+            backgroundImage: 'linear-gradient(90deg, #7c3aed 0%, #10b981 100%)',
+            boxShadow: '0 0.625rem 1.5rem rgba(124,58,237,0.28)',
+            '&:hover': {
+              backgroundImage: 'linear-gradient(90deg, #6d28d9 0%, #059669 100%)',
+              boxShadow: '0 0.75rem 1.75rem rgba(124,58,237,0.34)',
+            },
+          }),
         ...sx,
       }}
       {...props}

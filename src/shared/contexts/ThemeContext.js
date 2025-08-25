@@ -18,7 +18,7 @@ import getTheme from '../../app/theme/theme';
  * Default is a no-op toggle and 'light' mode.
  * @type {React.Context<ThemeModeValue>}
  */
-const ThemeModeContext = createContext({ mode: 'light', toggleMode: () => {} });
+const ThemeModeContext = createContext({ mode: 'light', toggleMode: () => { } });
 
 /**
  * Provides MUI Theme and exposes theme mode via context to the app tree.
@@ -26,7 +26,7 @@ const ThemeModeContext = createContext({ mode: 'light', toggleMode: () => {} });
 export function ThemeModeProvider({ children }) {
   // Currently fixed to 'light'; API allows future dark-mode toggle without refactors
   const mode = 'light';
-  const toggleMode = useCallback(() => {}, []); // no-op for now
+  const toggleMode = useCallback(() => { }, []); // no-op for now
 
   // Memoize context value to avoid unnecessary re-renders of consumers
   const value = useMemo(() => ({ mode, toggleMode }), [mode, toggleMode]);

@@ -20,7 +20,7 @@ const getSchools = () => axiosInstance.get(API);
  * @param {string} name - Partial or full school name to search for
  * @returns {Promise<Array>} Promise resolving to array of matching school objects
  */
-const searchSchools = (name) => 
+const searchSchools = (name) =>
   axiosInstance.get(`${API}?name=${encodeURIComponent(name)}`);
 
 /**
@@ -46,12 +46,12 @@ const updateSchool = (id, data) => axiosInstance.put(`${API}/${id}`, data);
 const deleteSchool = (id) => axiosInstance.delete(`${API}/${id}`);
 
 // Aggregated service object for all school-related API functions
-const schoolService = { 
-  getSchools, 
-  searchSchools, 
-  createSchool, 
-  updateSchool, 
-  deleteSchool 
+const schoolService = {
+  getSchools,
+  searchSchools,
+  createSchool,
+  updateSchool,
+  deleteSchool
 };
 
 export default schoolService;

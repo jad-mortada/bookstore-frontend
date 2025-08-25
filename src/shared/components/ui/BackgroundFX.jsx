@@ -6,20 +6,20 @@
   *
   * This file adds documentation comments only and does not change behavior.
   */
- import React from 'react';
- import { Box } from '@mui/material';
- 
- /**
-  * BackgroundFX
-  *
-  * Wraps content with a full-viewport decorative background. All content is
-  * rendered above the effects layer using `zIndex: 1`.
-  *
-  * @param {Object} props
-  * @param {React.ReactNode} props.children - Content to render above the background effects.
-  * @returns {JSX.Element}
-  */
- const BackgroundFX = ({ children }) => {
+import React from 'react';
+import { Box } from '@mui/material';
+
+/**
+ * BackgroundFX
+ *
+ * Wraps content with a full-viewport decorative background. All content is
+ * rendered above the effects layer using `zIndex: 1`.
+ *
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Content to render above the background effects.
+ * @returns {JSX.Element}
+ */
+const BackgroundFX = ({ children }) => {
   return (
     <Box sx={{ position: 'relative', minHeight: '100vh', width: '100%', overflow: 'hidden' }}>
       <Box
@@ -27,15 +27,15 @@
         sx={{
           position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
           background: `
-            radial-gradient(55vw 27.5vw at 10% 10%, rgba(124,58,237,0.16) 0%, transparent 60%),
-            radial-gradient(48vw 24vw at 90% 20%, rgba(16,185,129,0.14) 0%, transparent 60%),
-            radial-gradient(42vw 21vw at 30% 85%, rgba(124,58,237,0.10) 0%, transparent 70%),
+            radial-gradient(60vw 30vw at 10% 10%, rgba(124,58,237,0.16) 0%, transparent 60%),
+            radial-gradient(50vw 25vw at 90% 20%, rgba(16,185,129,0.14) 0%, transparent 60%),
+            radial-gradient(45vw 22.5vw at 30% 85%, rgba(124,58,237,0.10) 0%, transparent 70%),
             linear-gradient(180deg, rgba(245,247,251,1) 0%, transparent 100%)
           `,
           '&:after': {
-            content: '""', position: 'absolute', inset: '-7vw', background:
+            content: '""', position: 'absolute', inset: '-8vw', background:
               'conic-gradient(from 0deg, rgba(255,255,255,0.06), rgba(255,255,255,0.0), rgba(255,255,255,0.06))',
-            filter: 'blur(2.8vw)', opacity: 0.5,
+            filter: 'blur(3vw)', opacity: 0.4,
             animation: 'spinSlow 26s linear infinite',
           },
           '@keyframes spinSlow': {

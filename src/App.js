@@ -1,5 +1,4 @@
-import React, { useContext } from 'react';
-import { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 import { LoadingProvider, useLoading } from './shared/contexts/LoadingContext';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -16,8 +15,8 @@ import CustomerMyOrders from './features/orders/pages/CustomerMyOrders';
 import ListBooksManagement from './features/lists/pages/ListBooksManagement';
 import CustomerOrders from './features/orders/pages/CustomerOrders';
 import AdminsPage from './features/admin/pages/AdminsPage';
-import AdminTempOrders from '../src/features/admin/pages/AdminTempOrders';
-import PrivateRoute from './app/routes/guards//PrivateRoute';
+import AdminTempOrders from './features/admin/pages/AdminTempOrders';
+import PrivateRoute from './app/routes/guards/PrivateRoute';
 import { AuthProvider, AuthContext } from './shared/contexts/AuthContext';
 import Landing from './features/home/pages/Landing';
 import Home from './features/home/pages/Home';
