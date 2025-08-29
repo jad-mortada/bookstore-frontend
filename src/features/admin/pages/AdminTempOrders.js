@@ -1,5 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Card, CardHeader, CardContent, Button, Typography, Alert, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Divider, CircularProgress, Tooltip, TextField, IconButton } from '@mui/material';
+import { 
+  Box, Card, CardHeader, CardContent, Button, Typography, Alert, Dialog, DialogTitle, 
+  DialogContent, DialogActions, Chip, Divider, CircularProgress, Tooltip, TextField, 
+  IconButton, useTheme, useMediaQuery
+} from '@mui/material';
 import { CheckCircleRounded } from '@mui/icons-material';
 import GradientButton from '../../../shared/components/ui/GradientButton';
 import { DataGrid } from '@mui/x-data-grid';
@@ -22,14 +26,41 @@ export default function AdminTempOrders() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState('');
- 
+  const [previewDimensions, setPreviewDimensions] = useState({ 
+    width: 'auto', 
+    height: 'auto',
+    maxWidth: '90vw',
+    maxHeight: '80vh'
+  });
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Update preview dimensions based on screen size
+  useEffect(() => {
+    const updatePreviewSize = () => {
+      const width = Math.min(window.innerWidth * 0.9, 800);
+      const height = Math.min(window.innerHeight * 0.8, 600);
+      setPreviewDimensions({
+        width: 'auto',
+        height: 'auto',
+        maxWidth: `${width}px`,
+        maxHeight: `${height}px`,
+      });
+    };
+
+    window.addEventListener('resize', updatePreviewSize);
+    updatePreviewSize();
+    
+    return () => window.removeEventListener('resize', updatePreviewSize);
+  }, []);
+
   const fmtDate = React.useCallback((iso) => {
     if (!iso) return '-';
     try {
       const datePart = String(iso).split('T')[0];
       const [y, m, d] = datePart.split('-');
       if (y && m && d) return `${d}/${m}/${y}`;
-    } catch (_) {}
+    } catch (_) { }
     return '-';
   }, []);
 
@@ -61,7 +92,7 @@ export default function AdminTempOrders() {
           }));
           const nameById = new Map(enriched.filter(Boolean).map(e => [e.id, e.customerName]));
           data = data.map(r => (nameById.has(r.id) ? { ...r, customerName: nameById.get(r.id) } : r));
-        } catch {}
+        } catch { }
       }
       setRows(data);
     } catch (e) {
@@ -124,7 +155,7 @@ export default function AdminTempOrders() {
           return img ? { ...it, imageUrl: img } : it;
         });
         setDetail(prev => prev ? { ...prev, items } : prev);
-      } catch (_) {}
+      } catch (_) { }
     };
     enrich();
   }, [detail]);
@@ -142,25 +173,45 @@ export default function AdminTempOrders() {
   });
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', mx: 0 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: '100%', mx: 0, minHeight: 'calc(100vh - 64px)' }}>
       <Card elevation={2} sx={{ borderRadius: 3 }}>
-        <CardHeader 
+        <CardHeader
           title={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-              <Typography variant="h6" sx={{ mr: 'auto' }}>Submitted Draft Orders</Typography>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: 2, flexWrap: 'wrap' }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  mr: { sm: 'auto' },
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                  textAlign: { xs: 'center', sm: 'left' }
+                }}
+              >
+                Submitted Draft Orders
+              </Typography>
               <TextField
                 size="small"
                 label="Search drafts"
                 placeholder="Search by id, customer, status"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                sx={{ minWidth: 220, maxWidth: 360 }}
-                slotProps={{
-                  input: {
-                    endAdornment: search ? (
-                      <IconButton size="small" onClick={() => setSearch('')} aria-label="Clear search">✕</IconButton>
-                    ) : null,
-                  },
+                sx={{ 
+                  minWidth: { xs: '100%', sm: 220 },
+                  maxWidth: 360,
+                  '& .MuiInputBase-root': {
+                    height: '40px'
+                  }
+                }}
+                InputProps={{
+                  endAdornment: search ? (
+                    <IconButton 
+                      size="small" 
+                      onClick={() => setSearch('')} 
+                      aria-label="Clear search"
+                      sx={{ mr: -1 }}
+                    >
+                      ✕
+                    </IconButton>
+                  ) : null,
                 }}
               />
             </Box>
@@ -171,23 +222,87 @@ export default function AdminTempOrders() {
             <Alert severity="error" sx={{ mb: 2 }}>{errorMessage}</Alert>
           </Box>
         )}
-        <CardContent>
-          <Box sx={{ height: 520, width: '100%' }}>
+        <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
+          <Box sx={{ 
+            width: '100%',
+            minHeight: 400,
+            maxHeight: 'calc(100vh - 300px)',
+            overflow: 'auto',
+            '& .MuiDataGrid-root': {
+              minWidth: 'fit-content',
+              width: '100%',
+            },
+            '& .MuiDataGrid-columnHeader': {
+              backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
+            },
+            '& .MuiDataGrid-cell': {
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            },
+          }}>
             <DataGrid
               rows={filteredRows}
               loading={loading}
               disableRowSelectionOnClick
               columns={[
-                { field: 'id', headerName: 'Draft ID', flex: 0.6 },
-                { field: 'customerName', headerName: 'Customer', flex: 1 },
-                { field: 'itemsCount', headerName: 'Items', flex: 0.5 },
-                { field: 'createdAt', headerName: 'Created', flex: 1 },
-                { field: 'status', headerName: 'Status', flex: 0.6 },
+                { 
+                  field: 'id', 
+                  headerName: 'Draft ID', 
+                  flex: 1,
+                  minWidth: 100,
+                  maxWidth: 150,
+                },
+                { 
+                  field: 'customerName', 
+                  headerName: 'Customer', 
+                  flex: 1.5,
+                  minWidth: 150,
+                },
+                { 
+                  field: 'itemsCount', 
+                  headerName: 'Items', 
+                  flex: 0.8,
+                  minWidth: 80,
+                  maxWidth: 100,
+                  align: 'center',
+                  headerAlign: 'center',
+                },
+                { 
+                  field: 'createdAt', 
+                  headerName: 'Created', 
+                  flex: 1.2,
+                  minWidth: 120,
+                },
+                { 
+                  field: 'status', 
+                  headerName: 'Status', 
+                  flex: 1,
+                  minWidth: 120,
+                  renderCell: (params) => (
+                    <Chip 
+                      label={params.value} 
+                      size="small" 
+                      color={
+                        params.value === 'APPROVED' ? 'success' : 
+                        params.value === 'SUBMITTED' ? 'info' : 'default'
+                      }
+                      sx={{ 
+                        width: '100%',
+                        maxWidth: '120px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                      }}
+                    />
+                  ),
+                },
                 {
                   field: 'actions',
                   headerName: 'Actions',
-                  flex: 0.8,
+                  flex: 1,
+                  minWidth: 150,
                   sortable: false,
+                  headerAlign: 'left',
                   renderCell: ({ row }) => (
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <Tooltip title="Approve draft">
@@ -208,20 +323,104 @@ export default function AdminTempOrders() {
               ]}
               pageSize={10}
               rowsPerPageOptions={[10, 20]}
-              autoHeight
               onRowClick={(params) => handleDetails(params.id)}
               getRowId={(row) => row?.id ?? row?._id ?? `${row?.customerName || 'draft'}-${row?.createdAt || ''}`}
               localeText={{ noRowsLabel: 'No submitted drafts found.' }}
-              sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
+              sx={{ 
+                '& .MuiDataGrid-row': { 
+                  cursor: 'pointer',
+                  '&:nth-of-type(odd)': {
+                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.02)',
+                  },
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)',
+                  },
+                },
+                '& .MuiDataGrid-columnHeaders': {
+                  position: 'sticky',
+                  top: 0,
+                  zIndex: 1,
+                  backgroundColor: theme.palette.background.paper,
+                },
+                '& .MuiDataGrid-virtualScroller': {
+                  overflowX: 'auto',
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+                    borderRadius: '3px',
+                  },
+                },
+              }}
+              autoPageSize
+              disableColumnMenu
+              disableSelectionOnClick
             />
           </Box>
         </CardContent>
       </Card>
 
       {/* Details Dialog */}
-      <Dialog open={detailOpen} onClose={() => setDetailOpen(false)} maxWidth="md" fullWidth>
+      <ImagePreviewDialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        src={previewSrc}
+        style={previewDimensions}
+        BackdropProps={{
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            backdropFilter: 'blur(4px)',
+          },
+        }}
+        PaperProps={{
+          sx: {
+            maxWidth: 'none',
+            width: 'auto',
+            maxHeight: 'none',
+            backgroundColor: 'transparent',
+            boxShadow: 'none',
+            overflow: 'visible',
+          },
+        }}
+      />
+      <Dialog 
+        open={detailOpen} 
+        onClose={() => setDetailOpen(false)} 
+        maxWidth="md" 
+        fullWidth
+        fullScreen={fullScreen}
+        sx={{
+          '& .MuiDialog-paper': {
+            m: 0,
+            width: '100%',
+            maxWidth: '100%',
+            [theme.breakpoints.up('md')]: {
+              m: 2,
+              width: 'calc(100% - 32px)',
+              maxWidth: '900px',
+              height: 'calc(100% - 64px)',
+              maxHeight: '90vh',
+            },
+          },
+        }}
+      >
         <DialogTitle>Order Details </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent 
+          dividers 
+          sx={{ 
+            p: { xs: 1, sm: 2 },
+            overflowX: 'auto',
+            '&::-webkit-scrollbar': {
+              width: '6px',
+              height: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+              borderRadius: '3px',
+            },
+          }}
+        >
           {detailLoading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
               <CircularProgress />
@@ -233,66 +432,109 @@ export default function AdminTempOrders() {
               {/* Order Header */}
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
-                  <Chip 
-                    size="small" 
+                  <Chip
+                    size="small"
                     color={
-                      detail.status === 'APPROVED' ? 'success' : 
-                      detail.status === 'SUBMITTED' ? 'info' : 'default'
-                    } 
-                    label={`Status: ${detail.status || 'PENDING'}`} 
+                      detail.status === 'APPROVED' ? 'success' :
+                        detail.status === 'SUBMITTED' ? 'info' : 'default'
+                    }
+                    label={`Status: ${detail.status || 'PENDING'}`}
                   />
-                  <Chip 
-                    size="small" 
-                    variant="outlined" 
+                  <Chip
+                    size="small"
+                    variant="outlined"
                     label={`Order Date: ${detail.createdAt ? new Date(detail.createdAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
-                    }) : 'N/A'}`} 
+                    }) : 'N/A'}`}
                   />
-                  <Chip 
-                    size="small" 
-                    variant="outlined" 
-                    label={`Customer: ${[detail.customerFirstName, detail.customerLastName].filter(Boolean).join(' ') || detail.customerId || 'N/A'}`} 
+                  <Chip
+                    size="small"
+                    variant="outlined"
+                    label={`Customer: ${[detail.customerFirstName, detail.customerLastName].filter(Boolean).join(' ') || detail.customerId || 'N/A'}`}
                   />
                   {detail.schoolName && (
-                    <Chip 
-                      size="small" 
-                      variant="outlined" 
-                      label={`School: ${detail.schoolName}`} 
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`School: ${detail.schoolName}`}
                     />
                   )}
                   {detail.className && (
-                    <Chip 
-                      size="small" 
-                      variant="outlined" 
-                      label={`Class: ${detail.className}`} 
+                    <Chip
+                      size="small"
+                      variant="outlined"
+                      label={`Class: ${detail.className}`}
                     />
                   )}
                 </Box>
                 <Divider sx={{ my: 2 }} />
               </Box>
-              
+
               {/* Order Items */}
               {Array.isArray(detail.items) && detail.items.length > 0 ? (
-                <Box sx={{ overflowX: 'auto' }}>
+                <Box sx={{ 
+                  overflowX: 'auto',
+                  width: '100%',
+                  maxWidth: '100%',
+                  '&::-webkit-scrollbar': {
+                    height: '6px',
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+                    borderRadius: '3px',
+                  },
+                }}>
                   <Box
                     component="table"
                     sx={{
+                      minWidth: '800px',
                       width: '100%',
                       borderCollapse: 'collapse',
-                      bgcolor: 'rgba(255,255,255,1)',
-                      color: 'rgba(0,0,0,0.87)',
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
                       borderRadius: 1,
-                      boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                      boxShadow: theme.shadows[1],
                       '& thead': {
-                        bgcolor: 'rgba(15,23,42,0.035)'
+                        bgcolor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255,255,255,0.05)' 
+                          : 'rgba(15,23,42,0.035)',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 1,
                       },
-                      '& th, & td': { p: 1.5 },
-                      '& tr': { borderBottom: '1px solid', borderColor: 'rgba(0,0,0,0.1)' },
-                      '& tbody tr:hover': { bgcolor: 'rgba(15,23,42,0.03)' }
+                      '& th, & td': { 
+                        p: { xs: 1, sm: 1.25, md: 1.5 },
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                      },
+                      '& th': {
+                        whiteSpace: 'nowrap',
+                        fontWeight: 600,
+                      },
+                      '& tr': { 
+                        borderBottom: '1px solid', 
+                        borderColor: theme.palette.divider,
+                        '&:nth-of-type(even)': {
+                          backgroundColor: theme.palette.mode === 'dark' 
+                            ? 'rgba(255, 255, 255, 0.03)' 
+                            : 'rgba(0, 0, 0, 0.02)',
+                        },
+                      },
+                      '& tbody tr:hover': { 
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)' 
+                          : 'rgba(0, 0, 0, 0.04)' 
+                      },
+                      '& tfoot': {
+                        position: 'sticky',
+                        bottom: 0,
+                        backgroundColor: theme.palette.background.paper,
+                        boxShadow: '0 -2px 4px rgba(0,0,0,0.05)',
+                        zIndex: 1,
+                      },
                     }}
                   >
                     <Box component="thead">
@@ -322,9 +564,9 @@ export default function AdminTempOrders() {
                           ? committedSubtotal
                           : unitPrice * quantity;
                         const displayBase = isUsed ? (unitPrice * 2) : basePrice;
-                        
+
                         return (
-                          <Box component="tr" key={item.id || `${item.bookId}-${index}` }>
+                          <Box component="tr" key={item.id || `${item.bookId}-${index}`}>
                             <Box component="td" sx={{ p: 1.5 }}>
                               {(() => {
                                 const img = item.imageUrl;
@@ -344,9 +586,9 @@ export default function AdminTempOrders() {
                             <Box component="td" sx={{ p: 1.5 }}><b>{item.bookTitle || item.title || 'N/A'}</b></Box>
                             <Box component="td" sx={{ p: 1.5 }}>{item.bookAuthor || item.author || 'N/A'}</Box>
                             <Box component="td" sx={{ p: 1.5, textAlign: 'center' }}>
-                              <Chip 
-                                label={item.conditionType || 'NEW'} 
-                                size="small" 
+                              <Chip
+                                label={item.conditionType || 'NEW'}
+                                size="small"
                                 color={isUsed ? 'default' : 'primary'}
                                 variant="outlined"
                               />
@@ -405,7 +647,7 @@ export default function AdminTempOrders() {
       </Dialog>
 
       <ImagePreviewDialog open={previewOpen} src={previewSrc} onClose={() => setPreviewOpen(false)} />
-      
+
     </Box>
   );
 }
